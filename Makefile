@@ -4,6 +4,7 @@ else
 	EXEC_WWW=docker compose -p family-meet-api exec php-fpm
 endif
 
+BIN_CONSOLE=bin/console --no-debug
 VENDOR_CONTAINER=$(shell docker compose ps -q php-fpm)
 
 start:
@@ -46,9 +47,16 @@ fixtures-test:
 	$(EXEC_WWW) bin/console --env=test doctrine:fixtures:load
 
 init-db:
-	make clean-db
-	$(EXEC_WWW) $(APP_CONSOLE) doctrine:schema:create
-	$(EXEC_WWW) php -d memory_limit=999M $(APP_CONSOLE) doctrine:fixtures:load -n
+	#make clean-db
+	$(EXEC_WWW) $(BIN_CONSOLE) --env=test --if-not-exists doctrine:database:create
+	$(EXEC_WWW) $(BIN_CONSOLE) --env=test doctrine:schema:create
+	$(EXEC_WWW) php -d memory_limit=999M $(BIN_CONSOLE) doctrine:fixtures:load -n
+
+init-db-test:
+	#make clean-db
+	$(EXEC_WWW) $(BIN_CONSOLE) --env=test --if-not-exists doctrine:database:create
+	$(EXEC_WWW) $(BIN_CONSOLE) --env=test doctrine:schema:create
+	$(EXEC_WWW) php -d memory_limit=999M $(BIN_CONSOLE) --env=test doctrine:fixtures:load -n
 
 bin-install:
 	$(EXEC_WWW) composer bin all install -n --prefer-dist
