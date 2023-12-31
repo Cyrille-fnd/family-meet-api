@@ -52,7 +52,7 @@ jobs:
 #          echo '${{ secrets.COMPOSER_AUTH_FILE }}' | sed 's/""/"/g' > ~/.composer/auth.json
 
       - name: "Docker compose up -d"
-        run: "cp docker-compose.yml.dist docker-compose.yml && docker compose up -d"
+        run: "docker compose up -d"
 
       - name: "Copy Vendors"
         run: "make copy-docker-vendors"
