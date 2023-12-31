@@ -1,3 +1,9 @@
+ifneq ("$(wildcard /.dockerenv)","") # if in docker
+	EXEC_WWW=
+else
+	EXEC_WWW=docker compose -p family-meet-api exec php-fpm
+endif
+
 start:
 	docker compose up -d
 
@@ -18,21 +24,33 @@ ps:
 	docker compose ps
 
 sh:
-	docker compose -p family-meet-api exec php-fpm /bin/sh
+	$(EXEC_WWW) /bin/sh
 
 phpstan:
-	docker compose -p family-meet-api exec php-fpm vendor/bin/phpstan analyse -c phpstan.neon
+	$(EXEC_WWW) vendor/bin/phpstan analyse -c phpstan.neon
 
 php-cs-fixer-check:
-	docker compose -p family-meet-api exec php-fpm vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix -v --dry-run --diff
+	$(EXEC_WWW) vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix -v --dry-run --diff
 
 php-cs-fixer-fix:
-	docker compose -p family-meet-api exec php-fpm vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix -v --diff
+	$(EXEC_WWW) vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix -v --diff
 
 phpunit:
-	docker compose -p family-meet-api exec php-fpm bin/phpunit tests/
+	$(EXEC_WWW) bin/phpunit tests/
 
 quality: php-cs-fixer-fix phpstan phpunit
 
 fixtures-test:
-	docker compose -p family-meet-api exec php-fpm bin/console --env=test doctrine:fixtures:load
+	$(EXEC_WWW) bin/console --env=test doctrine:fixtures:load
+
+init-db:
+	make clean-db
+	$(EXEC_WWW) $(APP_CONSOLE) doctrine:schema:create
+	$(EXEC_WWW) php -d memory_limit=999M $(APP_CONSOLE) doctrine:fixtures:load -n
+
+bin-install:
+	$(EXEC_WWW) composer bin all install -n --prefer-dist
+
+copy-docker-vendors:
+	$(EXEC_WWW) composer install
+	docker cp $(VENDOR_CONTAINER):/srv/app/vendor vendor

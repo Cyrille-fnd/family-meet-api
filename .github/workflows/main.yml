@@ -5,7 +5,64 @@ on:
       - main
 
 jobs:
-  build:
+  run-tests:
+    name: Run Test Suite
+    # services:
+    #   elasticsearch:
+    #     image: elasticsearch:5.6
+    #     env:
+    #       ES_JAVA_OPTS: "-Xms256m -Xmx256m"
+    #   mysql:
+    #     image: circleci/mysql:5.7
+    #     env:
+    #       MYSQL_DATABASE: database
+    #       MYSQL_USER: user
+    #       MYSQL_PASSWORD: password
+    #     command: ['--sql-mode=']
+    #   memcached:
+    #     image: memcached:1.5.3
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+      - name: Generate JWT Keys
+        run: |
+          mkdir -p config/jwt
+          openssl genrsa -out config/jwt/private.pem 4096
+          openssl rsa -in config/jwt/private.pem -outform PEM -pubout -out config/jwt/public.pem
+
+      - name: "Validate composer.json and composer.lock"
+        run: "composer validate"
+
+      - name: "Determine composer cache directory"
+        id: "determine-composer-cache-directory"
+        run: "echo \"::set-output name=directory::$(composer config cache-dir)\""
+
+      - name: "Cache dependencies installed with composer"
+        uses: "actions/cache@v3"
+        with:
+          path: "${{ steps.determine-composer-cache-directory.outputs.directory }}"
+          key: "php-composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-composer-${{ runner.os }}-"
+
+#      - name: Update Composer auth
+#        run: |
+#          echo '${{ secrets.COMPOSER_AUTH_FILE }}' | sed 's/""/"/g' > ~/.composer/auth.json
+
+      - name: "Docker compose up -d"
+        run: "cp docker-compose.yml.dist docker-compose.yml && docker compose up -d"
+
+      - name: "Copy Vendors"
+        run: "make copy-docker-vendors"
+
+      - name: "Init Database"
+        run: "make init-db"
+
+      - name: "Quality"
+        run: "make quality"
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
