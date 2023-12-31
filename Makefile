@@ -4,6 +4,8 @@ else
 	EXEC_WWW=docker compose -p family-meet-api exec php-fpm
 endif
 
+VENDOR_CONTAINER=$(shell docker compose ps -q php-fpm)
+
 start:
 	docker compose up -d
 
@@ -53,4 +55,4 @@ bin-install:
 
 copy-docker-vendors:
 	$(EXEC_WWW) composer install
-	docker cp $(VENDOR_CONTAINER):/srv/app/vendor vendor
+	#docker cp $(VENDOR_CONTAINER):/var/www/vendor vendor
