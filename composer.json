@@ -1,4 +1,6 @@
 {
+    "name": "family-meet-api",
+    "description": "family meet symfony backend api",
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",
