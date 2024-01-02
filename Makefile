@@ -48,12 +48,11 @@ fixtures-test:
 
 init-db:
 	#make clean-db
-	$(EXEC_WWW) $(BIN_CONSOLE) --env=test --if-not-exists doctrine:database:create
-	$(EXEC_WWW) $(BIN_CONSOLE) --env=test doctrine:schema:create
+	$(EXEC_WWW) $(BIN_CONSOLE) --if-not-exists doctrine:database:create
+	$(EXEC_WWW) $(BIN_CONSOLE) doctrine:schema:create
 	$(EXEC_WWW) php -d memory_limit=999M $(BIN_CONSOLE) doctrine:fixtures:load -n
 
 init-db-test:
-	#make clean-db
 	$(EXEC_WWW) $(BIN_CONSOLE) --env=test --if-not-exists doctrine:database:create
 	$(EXEC_WWW) $(BIN_CONSOLE) --env=test doctrine:schema:create
 	$(EXEC_WWW) php -d memory_limit=999M $(BIN_CONSOLE) --env=test doctrine:fixtures:load -n
@@ -61,6 +60,5 @@ init-db-test:
 bin-install:
 	$(EXEC_WWW) composer bin all install -n --prefer-dist
 
-copy-docker-vendors:
+composer-install:
 	$(EXEC_WWW) composer install
-	#docker cp $(VENDOR_CONTAINER):/var/www/vendor vendor

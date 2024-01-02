@@ -7,21 +7,6 @@ on:
 jobs:
   run-tests:
     name: Run Test Suite
-    # services:
-    #   elasticsearch:
-    #     image: elasticsearch:5.6
-    #     env:
-    #       ES_JAVA_OPTS: "-Xms256m -Xmx256m"
-    #   mysql:
-    #     image: circleci/mysql:5.7
-    #     env:
-    #       MYSQL_DATABASE: database
-    #       MYSQL_USER: user
-    #       MYSQL_PASSWORD: password
-    #     command: ['--sql-mode=']
-    #   memcached:
-    #     image: memcached:1.5.3
-
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -47,15 +32,11 @@ jobs:
           key: "php-composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}"
           restore-keys: "php-composer-${{ runner.os }}-"
 
-#      - name: Update Composer auth
-#        run: |
-#          echo '${{ secrets.COMPOSER_AUTH_FILE }}' | sed 's/""/"/g' > ~/.composer/auth.json
-
       - name: "Docker compose up -d"
         run: "docker compose up -d"
 
-      - name: "Copy Vendors"
-        run: "make copy-docker-vendors"
+      - name: "Install dependencies"
+        run: "make composer-install"
 
       - name: "Init Database"
         run: "make init-db-test"
