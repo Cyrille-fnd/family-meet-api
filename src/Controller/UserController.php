@@ -75,6 +75,30 @@ final class UserController extends AbstractController
         );
     }
 
+    #[Route('/v1/api/users/current', name: 'users_get_current', methods: ['GET'], priority: 1)]
+    public function getCurrent(): JsonResponse
+    {
+        /** @var User|null $user */
+        $user = $this->getUser();
+
+        if (null === $user) {
+            return new JsonResponse(
+                [
+                    'code' => 'user_not_found',
+                    'message' => 'user not found',
+                ],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        return new JsonResponse(
+            $user->jsonSerialize(),
+            Response::HTTP_OK,
+            [],
+            false
+        );
+    }
+
     #[Route('/v1/api/users/{id}', name: 'users_get', methods: ['GET'])]
     public function get(
         User $user

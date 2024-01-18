@@ -32,8 +32,14 @@ jobs:
           key: "php-composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}"
           restore-keys: "php-composer-${{ runner.os }}-"
 
-      - name: "Docker compose up -d"
-        run: "docker compose up -d"
+      - name: "Build container"
+        run: "make build"
+
+      - name: "Start container"
+        run: "make start"
+
+      - name: "Sleep to give mysql container time to be ready"
+        run: sleep 10s
 
       - name: "Install dependencies"
         run: "make composer-install"
