@@ -79,6 +79,19 @@ final class EventController extends AbstractController
         return new JsonResponse($events);
     }
 
+    #[Route('v1/api/users/{id}/events', name: 'user_events_get', methods: ['GET'])]
+    public function getUserEvents(
+        User $user
+    ): JsonResponse {
+        $events = array_merge($user->getHostedEvents()->toArray(), $user->getEvents()->toArray());
+
+        $events = array_map(function (Event $event) {
+            return $event->jsonSerialize();
+        }, $events);
+
+        return new JsonResponse($events);
+    }
+
     #[Route('v1/api/events/{id}', name: 'events_put', methods: ['PUT'])]
     public function put(
         Event $event,
