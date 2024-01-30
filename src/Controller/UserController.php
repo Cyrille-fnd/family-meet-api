@@ -3,12 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Message\RegisteredUserEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Uid\Uuid;
@@ -20,7 +22,8 @@ final class UserController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $passwordHasher,
-        JWTTokenManagerInterface $JWTTokenManager
+        JWTTokenManagerInterface $JWTTokenManager,
+        MessageBusInterface $bus
     ): JsonResponse {
         $content = $request->getContent();
 
@@ -69,6 +72,8 @@ final class UserController extends AbstractController
         $entityManager->flush();
 
         $token = $JWTTokenManager->create($user);
+
+        $bus->dispatch(new RegisteredUserEvent($user->getId()));
 
         return new JsonResponse(array_merge(['token' => $token], $user->jsonSerialize()),
             Response::HTTP_CREATED
