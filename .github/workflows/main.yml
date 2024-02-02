@@ -56,13 +56,6 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v1
 
-      #- name: Store AMQP SSL/TLS certificate
-      #  run: |
-      #    mkdir -p config/amqp-cert/
-      #    echo $AMQP_CERTIFICATE > ssl/amqp-cert/amqp_cert.pem
-      #  env:
-      #      AMQP_CERTIFICATE: ${{ secrets.AMQP_CERTIFICATE }}
-
       - name: Generate deployment package
         run: zip familymeetapi.zip -r ./
 

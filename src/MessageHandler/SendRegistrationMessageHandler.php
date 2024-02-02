@@ -35,8 +35,9 @@ class SendRegistrationMessageHandler
         }
 
         $email = (new Email())
-        ->from('no-reply@family-meet.com')
-        ->to($user->getEmail())
+        // force email cause sandbox only allow verified emails for 'from' and 'to'
+        ->from('ferandc@gmail.com')
+        ->to('ferandc@gmail.com')
         ->subject(sprintf('Bienvenue %s %s !!', $user->getFirstname(), $user->getLastname()))
         ->html('<p>Bonjour '.$user->getFirstname().',</p><p>Votre compte a été créé avec succès !!</p>');
 
