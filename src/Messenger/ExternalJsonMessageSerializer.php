@@ -38,7 +38,7 @@ class ExternalJsonMessageSerializer implements SerializerInterface
         }
         $allStamps = [];
         foreach ($envelope->all() as $stamps) {
-            //to avoid phpstan problems
+            // to avoid phpstan problems
             if (!is_array($stamps)) {
                 continue;
             }
