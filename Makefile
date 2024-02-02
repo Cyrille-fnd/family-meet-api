@@ -41,7 +41,7 @@ php-cs-fixer-fix:
 phpunit:
 	$(EXEC_WWW) bin/phpunit tests/
 
-quality: php-cs-fixer-fix phpstan phpunit
+quality: composer-validate php-cs-fixer-fix phpstan phpunit
 
 fixtures-test:
 	$(EXEC_WWW) bin/console --env=test doctrine:fixtures:load
@@ -62,3 +62,6 @@ bin-install:
 
 composer-install:
 	$(EXEC_WWW) composer install
+
+composer-validate:
+	$(EXEC_WWW) composer validate
