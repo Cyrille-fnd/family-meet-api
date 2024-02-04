@@ -17,7 +17,7 @@ use Symfony\Component\Uid\Uuid;
 
 final class UserController extends AbstractController
 {
-    #[Route('/v1/api/users', name: 'v1_api_users', methods: ['POST'])]
+    #[Route('/v1/api/register', name: 'v1_api_users_post', methods: ['POST'])]
     public function post(
         Request $request,
         EntityManagerInterface $entityManager,
@@ -80,32 +80,47 @@ final class UserController extends AbstractController
         );
     }
 
-    #[Route('/v1/api/users/current', name: 'users_get_current', methods: ['GET'], priority: 1)]
-    public function getCurrent(): JsonResponse
-    {
-        /** @var User|null $user */
-        $user = $this->getUser();
+    #[Route('/v1/api/users', name: 'v1_api_users_get', methods: ['GET'])]
+    public function get(
+        Request $request,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        if ($request->query->get('current')) {
+            /** @var User|null $user */
+            $user = $this->getUser();
 
-        if (null === $user) {
+            if (null === $user) {
+                return new JsonResponse(
+                    [
+                        'code' => 'user_not_found',
+                        'message' => 'user not found',
+                    ],
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+
             return new JsonResponse(
-                [
-                    'code' => 'user_not_found',
-                    'message' => 'user not found',
-                ],
-                Response::HTTP_NOT_FOUND
+                $user->jsonSerialize(),
+                Response::HTTP_OK,
+                [],
+                false
             );
         }
 
+        $users = array_map(function (User $user) {
+            return $user->jsonSerialize();
+        }, $em->getRepository(User::class)->findAll());
+
         return new JsonResponse(
-            $user->jsonSerialize(),
+            $users,
             Response::HTTP_OK,
             [],
             false
         );
     }
 
-    #[Route('/v1/api/users/{id}', name: 'users_get', methods: ['GET'])]
-    public function get(
+    #[Route('/v1/api/users/{id}', name: 'v1_api_users_get_by_id', methods: ['GET'])]
+    public function getById(
         User $user
     ): JsonResponse {
         return new JsonResponse(
@@ -116,7 +131,7 @@ final class UserController extends AbstractController
         );
     }
 
-    #[Route('v1/api/users/{id}', name: 'users_put', methods: ['PUT'])]
+    #[Route('v1/api/users/{id}', name: 'v1_api_users_put', methods: ['PUT'])]
     public function put(
         User $user,
         EntityManagerInterface $entityManager,
@@ -151,7 +166,7 @@ final class UserController extends AbstractController
         return new JsonResponse($user->jsonSerialize());
     }
 
-    #[Route('/v1/api/users/{id}', name: 'users_delete', methods: ['DELETE'])]
+    #[Route('/v1/api/users/{id}', name: 'v1_api_users_delete', methods: ['DELETE'])]
     public function delete(
         User $user,
         EntityManagerInterface $entityManager
