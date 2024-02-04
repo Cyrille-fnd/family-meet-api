@@ -37,7 +37,7 @@ class UserControllerTest extends ApiTestCase
 
         $response = $client->request(
             Request::METHOD_POST,
-            '/v1/api/users',
+            '/v1/api/register',
             [
                 'body' => json_encode($body),
             ]
@@ -73,7 +73,7 @@ class UserControllerTest extends ApiTestCase
 
         $client->request(
             Request::METHOD_POST,
-            '/v1/api/users',
+            '/v1/api/register',
             [
                 'body' => json_encode($body),
             ]

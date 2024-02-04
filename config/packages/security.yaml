@@ -42,7 +42,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/v1/api/login, roles: PUBLIC_ACCESS }
-        - { path: ^/v1/api/users$, methods: [POST], roles: PUBLIC_ACCESS }
+        - { path: ^/v1/api/register, roles: PUBLIC_ACCESS }
         - { path: ^/v1/api, roles: IS_AUTHENTICATED_FULLY }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
