@@ -30,10 +30,15 @@ class JoinControllerTest extends ApiTestCase
 
         $client = static::createClient();
 
+        $body = [
+            'userId' => 'user-gaston-id',
+        ];
+
         $client->request(
             Request::METHOD_POST,
-            '/v1/api/users/user-gaston-id/events/event-raclette-id/join',
+            '/v1/api/events/event-raclette-id/join',
             [
+                'body' => json_encode($body),
                 'headers' => [
                     'Authorization' => 'bearer '.$token,
                 ],
@@ -54,10 +59,15 @@ class JoinControllerTest extends ApiTestCase
 
         $client = static::createClient();
 
+        $body = [
+            'userId' => 'user-gaston-id',
+        ];
+
         $client->request(
             Request::METHOD_POST,
-            '/v1/api/users/user-cyrille-id/events/event-foot-id/join',
+            '/v1/api/events/event-foot-id/join',
             [
+                'body' => json_encode($body),
                 'headers' => [
                     'Authorization' => 'bearer '.$token,
                 ],
@@ -78,10 +88,15 @@ class JoinControllerTest extends ApiTestCase
 
         $client = static::createClient();
 
+        $body = [
+            'userId' => 'user-cyrille-id',
+        ];
+
         $client->request(
             Request::METHOD_POST,
-            '/v1/api/users/user-cyrille-id/events/event-raclette-id/join',
+            '/v1/api/events/event-raclette-id/join',
             [
+                'body' => json_encode($body),
                 'headers' => [
                     'Authorization' => 'bearer '.$token,
                 ],
@@ -102,10 +117,15 @@ class JoinControllerTest extends ApiTestCase
 
         $client = static::createClient();
 
+        $body = [
+            'userId' => 'user-gaston-id',
+        ];
+
         $client->request(
             Request::METHOD_DELETE,
-            '/v1/api/users/user-gaston-id/events/event-raclette-id/unjoin',
+            '/v1/api/events/event-raclette-id/unjoin',
             [
+                'body' => json_encode($body),
                 'headers' => [
                     'Authorization' => 'bearer '.$token,
                 ],
@@ -126,10 +146,15 @@ class JoinControllerTest extends ApiTestCase
 
         $client = static::createClient();
 
+        $body = [
+            'userId' => 'user-gaston-id',
+        ];
+
         $client->request(
             Request::METHOD_DELETE,
-            '/v1/api/users/user-cyrille-id/events/event-foot-id/unjoin',
+            '/v1/api/events/event-foot-id/unjoin',
             [
+                'body' => json_encode($body),
                 'headers' => [
                     'Authorization' => 'bearer '.$token,
                 ],
@@ -150,10 +175,15 @@ class JoinControllerTest extends ApiTestCase
 
         $client = static::createClient();
 
+        $body = [
+            'userId' => 'user-cyrille-id',
+        ];
+
         $client->request(
             Request::METHOD_DELETE,
-            '/v1/api/users/user-cyrille-id/events/event-raclette-id/unjoin',
+            '/v1/api/events/event-raclette-id/unjoin',
             [
+                'body' => json_encode($body),
                 'headers' => [
                     'Authorization' => 'bearer '.$token,
                 ],
