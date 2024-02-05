@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 #[AsEventListener]
-final class ResourceNotFoundResponseListener
+final class SendResourceNotFoundResponseListener
 {
     public function __invoke(ExceptionEvent $event): void
     {

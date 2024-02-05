@@ -40,7 +40,7 @@ class EventControllerTest extends ApiTestCase
 
         $client->request(
             Request::METHOD_POST,
-            '/v1/api/users/user-gaston-id/events',
+            '/v1/api/events?hostId=user-gaston-id',
             [
                 'headers' => [
                     'Authorization' => 'bearer '.$token,
@@ -74,7 +74,7 @@ class EventControllerTest extends ApiTestCase
 
         $response = $client->request(
             Request::METHOD_POST,
-            '/v1/api/users/user-cyrille-id/events',
+            '/v1/api/events?hostId=user-cyrille-id',
             [
                 'headers' => [
                     'Authorization' => 'bearer '.$token,
