@@ -33,7 +33,7 @@ fi
 if [ ! -d /alanxz-rabbitmq-c* ]; then
     echo "downloading rabbitmq-c"
 
-    wget https://cmake.org/files/LatestRelease/cmake-3.28.0-linux-x86_64.sh -O rabbitmq.tar.gz
+    wget https://github.com/alanxz/rabbitmq-c/tarball/master -O rabbitmq.tar.gz
     tar xvfz rabbitmq.tar.gz
 else
     echo "rabbitmq-c already downloaded"
