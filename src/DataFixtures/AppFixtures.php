@@ -3,20 +3,26 @@
 namespace App\DataFixtures;
 
 use App\Entity\Chat;
-use App\Entity\Event;
 use App\Entity\Message;
 use App\Entity\User;
+use App\Service\ElasticSearch\ElasticaClientGenerator;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Elastica\Document;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
     private UserPasswordHasherInterface $userPasswordHasher;
 
-    public function __construct(UserPasswordHasherInterface $userPasswordHasher)
-    {
+    private ElasticaClientGenerator $clientGenerator;
+
+    public function __construct(
+        UserPasswordHasherInterface $userPasswordHasher,
+        ElasticaClientGenerator $clientGenerator
+    ) {
         $this->userPasswordHasher = $userPasswordHasher;
+        $this->clientGenerator = $clientGenerator;
     }
 
     public function load(ObjectManager $manager): void
@@ -101,96 +107,122 @@ class AppFixtures extends Fixture
             ->setCreatedAt(new \DateTime());
         $manager->persist($userIngrid);
 
-        $eventRaclette = new Event();
-        $eventRaclette
-            ->setId('event-raclette-id')
-            ->setTitle('Raclette chez Cyrille')
-            ->setLocation('2 rue Condorcet, 94800 Villejuif')
-            ->setDate(new \DateTime('2024-01-09 20:00:00'))
-            ->setParticipantMax(6)
-            ->setCategory('restaurant')
-            ->setCreatedAt(new \DateTime())
-            ->setHost($userCyrille)
-            ->addGuest($userDimitri)
-            ->addGuest($userGeoffrey)
-            ->addGuest($userMelinda);
-        $manager->persist($eventRaclette);
+        $client = $this->clientGenerator->getClient();
 
-        $eventFive = new Event();
-        $eventFive
-            ->setId('event-five-id')
-            ->setTitle('Five à Créteil')
-            ->setLocation('2 rue des poireaux, 94000 Créteil')
-            ->setDate(new \DateTime('2024-01-15 15:00:00'))
-            ->setParticipantMax(5)
-            ->setCategory('restaurant')
-            ->setCreatedAt(new \DateTime())
-            ->setHost($userDimitri);
-        $manager->persist($eventFive);
+        $index = $client->getIndex('familymeet');
+        $eventRaclette = new Document(
+            'event-raclette-id',
+            [
+                'title' => 'Raclette chez Cyrille',
+                'location' => '2 rue Condorcet, 94800 Villejuif',
+                'date' => '2024-01-09 20:00:00',
+                'category' => 'restaurant',
+                'participantMax' => 6,
+                'createdAt' => '2024-01-09 20:00:00',
+                'hostId' => 'user-cyrille-id',
+                'guests' => [
+                    'user-dimitri-id',
+                    'user-geoffrey-id',
+                    'user-melinda-id',
+                ],
+            ],
+        );
 
-        $eventJeux = new Event();
-        $eventJeux
-            ->setId('event-jeux-id')
-            ->setTitle('Jeux de sociétés')
-            ->setLocation('15 rue du Commerce, 94310 Orly')
-            ->setDate(new \DateTime('2024-02-22 15:00:00'))
-            ->setParticipantMax(4)
-            ->setCategory('restaurant')
-            ->setCreatedAt(new \DateTime())
-            ->addGuest($userMelinda)
-            ->setHost($userIngrid);
-        $manager->persist($eventJeux);
+        $eventFive = new Document(
+            'event-five-id',
+            [
+                'title' => 'Five à Créteil',
+                'location' => '2 rue des poireaux, 94000 Créteil',
+                'date' => '2024-01-09 20:00:00',
+                'category' => 'restaurant',
+                'participantMax' => 5,
+                'createdAt' => '2024-01-09 20:00:00',
+                'hostId' => 'user-dimitri-id',
+                'guests' => [
+                ],
+            ],
+        );
 
-        $eventClub = new Event();
-        $eventClub
-            ->setId('event-club-id')
-            ->setTitle('Danser à la Favela')
-            ->setLocation('15 rue du Faubourg du temple, 75010 Paris')
-            ->setDate(new \DateTime('2024-02-22 23:00:00'))
-            ->setParticipantMax(4)
-            ->setCategory('restaurant')
-            ->setCreatedAt(new \DateTime())
-            ->setHost($userCyrille);
-        $manager->persist($eventClub);
+        $eventJeux = new Document(
+            'event-jeux-id',
+            [
+                'title' => 'Jeux de sociétés',
+                'location' => '15 rue du Commerce, 94310 Orly',
+                'date' => '2024-01-09 20:00:00',
+                'category' => 'restaurant',
+                'participantMax' => 4,
+                'createdAt' => '2024-01-09 20:00:00',
+                'hostId' => 'user-ingrid-id',
+                'guests' => [
+                    'user-melinda-id',
+                ],
+            ],
+        );
+
+        $eventClub = new Document(
+            'event-club-id',
+            [
+                'title' => 'Danser à la Favela',
+                'location' => '15 rue du Faubourg du temple, 75010 Paris',
+                'date' => '2024-01-09 20:00:00',
+                'category' => 'restaurant',
+                'participantMax' => 4,
+                'createdAt' => '2024-01-09 20:00:00',
+                'hostId' => 'user-cyrille-id',
+                'guests' => [
+                ],
+            ],
+        );
+
+        try {
+            $index->addDocuments([
+                $eventRaclette,
+                $eventFive,
+                $eventJeux,
+                $eventClub,
+            ]);
+        } catch (\Exception $exception) {
+            var_dump($exception->getMessage());
+        }
 
         $chatRaclette = new Chat();
         $chatRaclette
             ->setId('chat-raclette-id')
-            ->setEvent($eventRaclette)
+            // ->setEvent($eventRaclette)
             ->setCreatedAt(new \DateTime());
-        foreach ($eventRaclette->getGuests() as $guest) {
+        /*foreach ($eventRaclette->getGuests() as $guest) {
             $chatRaclette->addChatter($guest);
-        }
+        }*/
         $manager->persist($chatRaclette);
 
         $chatFive = new Chat();
         $chatFive
             ->setId('chat-five-id')
-            ->setEvent($eventFive)
+            // ->setEvent($eventFive)
             ->setCreatedAt(new \DateTime());
-        foreach ($eventFive->getGuests() as $guest) {
+        /*foreach ($eventFive->getGuests() as $guest) {
             $chatFive->addChatter($guest);
-        }
+        }*/
         $manager->persist($chatFive);
 
         $chatJeux = new Chat();
         $chatJeux
             ->setId('chat-jeux-id')
-            ->setEvent($eventJeux)
+            // ->setEvent($eventJeux)
             ->setCreatedAt(new \DateTime());
-        foreach ($eventJeux->getGuests() as $guest) {
+        /*foreach ($eventJeux->getGuests() as $guest) {
             $chatJeux->addChatter($guest);
-        }
+        }*/
         $manager->persist($chatJeux);
 
         $chatClub = new Chat();
         $chatClub
             ->setId('chat-club-id')
-            ->setEvent($eventClub)
+            // ->setEvent($eventClub)
             ->setCreatedAt(new \DateTime());
-        foreach ($eventClub->getGuests() as $guest) {
+        /*foreach ($eventClub->getGuests() as $guest) {
             $chatClub->addChatter($guest);
-        }
+        }*/
         $manager->persist($chatClub);
 
         $messageRaclette = new Message();

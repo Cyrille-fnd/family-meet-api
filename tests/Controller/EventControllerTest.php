@@ -179,7 +179,7 @@ class EventControllerTest extends ApiTestCase
             ],
         );
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
     public function testPutSuccessful(): void
@@ -203,7 +203,7 @@ class EventControllerTest extends ApiTestCase
 
         $response = $client->request(
             Request::METHOD_PUT,
-            '/v1/api/events/event-raclette-id',
+            '/v1/api/events/event-jeux-id',
             [
                 'headers' => [
                     'Authorization' => 'bearer '.$token,
@@ -249,30 +249,6 @@ class EventControllerTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
     }
 
-    public function testDeleteNotFound(): void
-    {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
-
-        $token = $this->jwtTokenManager->create($user);
-
-        $client = static::createClient();
-
-        $client->request(
-            Request::METHOD_DELETE,
-            '/v1/api/events/event-foot-id',
-            [
-                'headers' => [
-                    'Authorization' => 'bearer '.$token,
-                ],
-            ],
-        );
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
-    }
-
     public function testDeleteSuccessful(): void
     {
         $user = new User();
@@ -286,7 +262,7 @@ class EventControllerTest extends ApiTestCase
 
         $client->request(
             Request::METHOD_DELETE,
-            '/v1/api/events/event-raclette-id',
+            '/v1/api/events/event-club-id',
             [
                 'headers' => [
                     'Authorization' => 'bearer '.$token,

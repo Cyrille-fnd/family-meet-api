@@ -2,10 +2,15 @@
 
 namespace App\Controller;
 
-use App\Entity\Event;
+use App\Dto\CreateEventDTO;
+use App\Dto\UpdateEventDTO;
 use App\Entity\User;
-use App\Event\EventCreatedEvent;
+use App\Service\ElasticSearch\ElasticaClientGenerator;
+use App\Service\ElasticSearch\EventRepository;
+use App\Utils\ArrayConverterTrait;
 use Doctrine\ORM\EntityManagerInterface;
+use Elastica\Document;
+use Elastica\Exception\NotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,15 +21,16 @@ use Symfony\Component\Uid\Uuid;
 
 final class EventController extends AbstractController
 {
+    use ArrayConverterTrait;
+
     #[Route('/v1/api/events', name: 'v1_api_events_post', methods: ['POST'])]
     public function post(
         Request $request,
         EntityManagerInterface $entityManager,
+        ElasticaClientGenerator $clientGenerator,
         EventDispatcherInterface $dispatcher
     ): JsonResponse {
-        $hostId = $request->query->get('hostId');
-
-        if (null === $hostId) {
+        if (null === $request->query->get('hostId')) {
             return new JsonResponse(
                 [
                     'code' => 'host_id_not_provided',
@@ -33,6 +39,9 @@ final class EventController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
+
+        /** @var string $hostId */
+        $hostId = $request->query->get('hostId');
 
         $host = $entityManager->getRepository(User::class)->find($hostId);
 
@@ -47,6 +56,7 @@ final class EventController extends AbstractController
         }
 
         $payload = $request->getPayload();
+
         /** @var string $title */
         $title = $payload->get('title');
         /** @var string $location */
@@ -58,50 +68,98 @@ final class EventController extends AbstractController
         /** @var int $participantMax */
         $participantMax = $payload->get('participantMax');
 
-        $event = new Event();
+        $eventDTO = new CreateEventDTO(
+            Uuid::v4()->jsonSerialize(),
+            $title,
+            $location,
+            $date,
+            $category,
+            $participantMax,
+            new \DateTime(),
+            $hostId,
+        );
 
-        $event
-            ->setId(Uuid::v4()->jsonSerialize())
-            ->setTitle($title)
-            ->setLocation($location)
-            ->setDate(new \DateTime($date))
-            ->setCategory($category)
-            ->setParticipantMax($participantMax)
-            ->setCreatedAt(new \DateTime())
-            ->setHost($host)
-            ->addGuest($host);
-        $entityManager->persist($event);
+        $client = $clientGenerator->getClient();
 
-        $dispatcher->dispatch(new EventCreatedEvent($event));
+        $index = $client->getIndex('familymeet');
+        $document = new Document(
+            $eventDTO->getId(),
+            [
+                'title' => $eventDTO->getTitle(),
+                'location' => $eventDTO->getLocation(),
+                'date' => $eventDTO->getDate(),
+                'category' => $eventDTO->getCategory(),
+                'participantMax' => $eventDTO->getParticipantMax(),
+                'createdAt' => $eventDTO->getCreatedAt()->format('y-m-d h:i:s'),
+                'hostId' => $eventDTO->getHostId(),
+                'guests' => $eventDTO->getGuests(),
+            ],
+        );
 
-        return new JsonResponse($event->jsonSerialize(), Response::HTTP_CREATED);
+        try {
+            $index->addDocument($document);
+        } catch (\Exception $exception) {
+            return new JsonResponse(
+                [
+                    'code' => 'bad_request',
+                    'message' => $exception->getMessage(),
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        return new JsonResponse($eventDTO->jsonSerialize(), Response::HTTP_CREATED);
     }
 
     #[Route('v1/api/events/{id}', name: 'v1_api_events_get_by_id', methods: ['GET'])]
     public function getById(
-        Event $event
+        string $id,
+        ElasticaClientGenerator $clientGenerator
     ): JsonResponse {
-        return new JsonResponse($event->jsonSerialize());
+        $client = $clientGenerator->getClient();
+
+        $index = $client->getIndex('familymeet');
+
+        try {
+            /** @var array<string, array<int, string>|int|string> $eventData */
+            $eventData = $index->getDocument($id)->getData();
+            $eventDTO = CreateEventDTO::fromArray(array_merge(['id' => $id], $eventData));
+        } catch (NotFoundException $exception) {
+            return new JsonResponse(
+                [
+                    'code' => 'not_found',
+                    'message' => $exception->getMessage(),
+                ],
+                Response::HTTP_NOT_FOUND
+            );
+        } catch (\Exception $exception) {
+            return new JsonResponse(
+                [
+                    'code' => 'bad_request',
+                    'message' => $exception->getMessage(),
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        return new JsonResponse($eventDTO->jsonSerialize());
     }
 
     #[Route('v1/api/events', name: 'v1_api_events_get', methods: ['GET'])]
     public function get(
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        EventRepository $eventRepository
     ): JsonResponse {
         $hostId = $request->query->get('hostId');
         $guestId = $request->query->get('guestId');
 
         if (null === $hostId && null === $guestId) {
-            $events = $entityManager->getRepository(Event::class)->findAll();
-            $events = array_map(function (Event $event) {
-                return $event->jsonSerialize();
-            }, $events);
+            $events = $eventRepository->findAll();
 
-            return new JsonResponse($events);
+            return new JsonResponse(self::toArray($events));
         }
 
-        $hostedEvents = [];
         if (null !== $hostId) {
             $host = $entityManager->getRepository(User::class)->find($hostId);
 
@@ -114,15 +172,8 @@ final class EventController extends AbstractController
                     Response::HTTP_NOT_FOUND
                 );
             }
-
-            $hostedEvents = $entityManager->getRepository(Event::class)->findBy(
-                [
-                    'host' => $hostId,
-                ]
-            );
         }
 
-        $guestEvents = [];
         if (null !== $guestId) {
             $guest = $entityManager->getRepository(User::class)->find($guestId);
 
@@ -135,54 +186,100 @@ final class EventController extends AbstractController
                     Response::HTTP_NOT_FOUND
                 );
             }
-
-            $guestEvents = $guest->getEvents()->toArray();
         }
 
-        $events = array_map(function (Event $event) {
-            return $event->jsonSerialize();
-        }, array_merge($hostedEvents, $guestEvents));
+        $events = $eventRepository->findBy(array_filter([
+            'hostId' => $hostId,
+            'guestId' => $guestId,
+        ]));
 
-        return new JsonResponse($events);
+        return new JsonResponse(self::toArray($events));
     }
 
     #[Route('v1/api/events/{id}', name: 'events_put', methods: ['PUT'])]
     public function put(
-        Event $event,
-        EntityManagerInterface $entityManager,
+        string $id,
+        ElasticaClientGenerator $clientGenerator,
         Request $request
     ): JsonResponse {
-        $content = $request->getContent();
+        $client = $clientGenerator->getClient();
 
-        /**
-         * @var array{
-         *      title: string,
-         *      location: string,
-         *      date: string,
-         *      category: string,
-         *      participantMax: int
-         *     } $payload */
-        $payload = json_decode($content, true);
+        $index = $client->getIndex('familymeet');
 
-        $event
-            ->setTitle($payload['title'])
-            ->setLocation($payload['location'])
-            ->setDate(new \DateTime($payload['date']))
-            ->setCategory($payload['category'])
-            ->setParticipantMax($payload['participantMax']);
+        $payload = $request->getPayload();
 
-        $entityManager->flush();
+        /** @var string $title */
+        $title = $payload->get('title');
+        /** @var string $location */
+        $location = $payload->get('location');
+        /** @var string $date */
+        $date = $payload->get('date');
+        /** @var string $category */
+        $category = $payload->get('category');
+        /** @var int $participantMax */
+        $participantMax = $payload->get('participantMax');
 
-        return new JsonResponse($event->jsonSerialize());
+        $eventDTO = new UpdateEventDTO(
+            $id,
+            $title,
+            $location,
+            $date,
+            $category,
+            $participantMax,
+        );
+
+        try {
+            $document = new Document(
+                $eventDTO->getId(),
+                [
+                    'title' => $eventDTO->getTitle(),
+                    'location' => $eventDTO->getLocation(),
+                    'date' => $eventDTO->getDate(),
+                    'category' => $eventDTO->getCategory(),
+                    'participantMax' => $eventDTO->getParticipantMax(),
+                ],
+            );
+            $index->updateDocument($document);
+        } catch (NotFoundException $exception) {
+            return new JsonResponse(
+                [
+                    'code' => 'not_found',
+                    'message' => $exception->getMessage(),
+                ],
+                Response::HTTP_NOT_FOUND
+            );
+        } catch (\Exception $exception) {
+            return new JsonResponse(
+                [
+                    'code' => 'bad request',
+                    'message' => $exception->getMessage(),
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        return new JsonResponse($eventDTO->jsonSerialize());
     }
 
     #[Route('v1/api/events/{id}', name: 'events_delete', methods: ['DELETE'])]
     public function delete(
-        Event $event,
-        EntityManagerInterface $entityManager
+        string $id,
+        ElasticaClientGenerator $clientGenerator
     ): JsonResponse {
-        $entityManager->remove($event);
-        $entityManager->flush();
+        $client = $clientGenerator->getClient();
+        $index = $client->getIndex('familymeet');
+
+        try {
+            $index->deleteById($id);
+        } catch (\Exception $exception) {
+            return new JsonResponse(
+                [
+                    'code' => 'bad request',
+                    'message' => $exception->getMessage(),
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
