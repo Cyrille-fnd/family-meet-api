@@ -44,7 +44,7 @@ phpunit:
 quality: composer-validate php-cs-fixer-fix phpstan phpunit
 
 fixtures-test:
-	$(EXEC_WWW) bin/console --env=test doctrine:fixtures:load
+	$(EXEC_WWW) bin/console doctrine:fixtures:load -q
 
 init-db:
 	#make clean-db

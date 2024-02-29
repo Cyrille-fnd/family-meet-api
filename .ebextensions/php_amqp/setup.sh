@@ -21,9 +21,16 @@ if [ ! -d /cmake ]; then
         echo "cmake already downloaded"
     fi
 
-    /bin/sh cmake-3.28.0-linux-x86_64.sh < <(printf '%s\n' y y)
-    mv cmake-3.28.0-linux-x86_64 cmake
+    echo "create cmake directory"
+    mkdir cmake
+
+    echo "execute cmake"
+    /bin/sh cmake-3.28.0-linux-x86_64.sh --skip-license --prefix=./cmake
+
+    echo "display cmake version"
     cmake/bin/cmake --version
+
+    echo "remove cmake shell script"
     rm -f cmake-3.28.0-linux-x86_64.sh
 else
     echo "cmake already installed"
@@ -34,11 +41,14 @@ if [ ! -d /alanxz-rabbitmq-c* ]; then
     echo "downloading rabbitmq-c"
 
     wget https://github.com/alanxz/rabbitmq-c/tarball/master -O rabbitmq.tar.gz
+
+    echo "extract rabbitmq-c files"
     tar xvfz rabbitmq.tar.gz
 else
     echo "rabbitmq-c already downloaded"
 fi
 
+echo "move to rabbitmq-c directory"
 cd /alanxz-rabbitmq-c*
 
 if [ ! -d /build ]; then
@@ -47,9 +57,16 @@ if [ ! -d /build ]; then
     mkdir build
 fi
 
+echo "move to build directory"
 cd build
 
 args=("-DCMAKE_INSTALL_PREFIX=/usr/local" "..")
+
+echo "launch cmake"
 ../../cmake/bin/cmake "${args[@]}"
+
+echo "build cmake"
 ../../cmake/bin/cmake --build . --target install
-pecl upgrade amqp
+
+echo "install amqp"
+pecl upgrade amqp < <(printf '%s\n' autodetect)

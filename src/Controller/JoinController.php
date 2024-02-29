@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Service\ElasticSearch\ElasticaClientGenerator;
+use App\Service\ElasticSearch\ElasticSearchClientGeneratorInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,7 +17,7 @@ final class JoinController extends AbstractController
     public function join(
         string $id,
         EntityManagerInterface $entityManager,
-        ElasticaClientGenerator $clientGenerator,
+        ElasticSearchClientGeneratorInterface $clientGenerator,
         Request $request
     ): JsonResponse {
         /** @var string $userId */
@@ -37,10 +37,14 @@ final class JoinController extends AbstractController
 
         try {
             $client = $clientGenerator->getClient();
-            $index = $client->getIndex('familymeet');
-            $document = $index->getDocument($id);
-            /** @var array<string, array<int, string>|int|string> $event */
-            $event = $document->getData();
+
+            $params = [
+                'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+                'id' => $id,
+            ];
+
+            $event = $client->get($params)['_source'];
+
             /** @var string[] $guests */
             $guests = $event['guests'];
 
@@ -53,8 +57,15 @@ final class JoinController extends AbstractController
 
             $guests[] = $userId;
             $event['guests'] = $guests;
-            $document->setData($event);
-            $index->updateDocument($document);
+
+            $params = [
+                'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+                'id' => $id,
+                'body' => [
+                    'doc' => $event,
+                ],
+            ];
+            $client->update($params);
         } catch (\Exception $exception) {
             return new JsonResponse([
                 'code' => 'bad_request',
@@ -69,7 +80,7 @@ final class JoinController extends AbstractController
     public function unjoin(
         string $id,
         EntityManagerInterface $entityManager,
-        ElasticaClientGenerator $clientGenerator,
+        ElasticSearchClientGeneratorInterface $clientGenerator,
         Request $request
     ): JsonResponse {
         /** @var string $userId */
@@ -89,10 +100,13 @@ final class JoinController extends AbstractController
 
         try {
             $client = $clientGenerator->getClient();
-            $index = $client->getIndex('familymeet');
-            $document = $index->getDocument($id);
-            /** @var array<string, array<int, string>|int|string> $event */
-            $event = $document->getData();
+
+            $params = [
+                'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+                'id' => $id,
+            ];
+
+            $event = $client->get($params)['_source'];
             /** @var string[] $guests */
             $guests = $event['guests'];
 
@@ -109,8 +123,14 @@ final class JoinController extends AbstractController
 
             $event['guests'] = array_values($guests);
 
-            $document->setData($event);
-            $index->updateDocument($document);
+            $params = [
+                'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+                'id' => $id,
+                'body' => [
+                    'doc' => $event,
+                ],
+            ];
+            $client->update($params);
         } catch (\Exception $exception) {
             return new JsonResponse([
                 'code' => 'bad_request',

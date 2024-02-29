@@ -39,7 +39,7 @@ jobs:
         run: "make start"
 
       - name: "Sleep to give mysql container time to be ready"
-        run: sleep 10s
+        run: sleep 25s
 
       - name: "Install dependencies"
         run: "make composer-install"
