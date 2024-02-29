@@ -3,8 +3,7 @@
 namespace App\Service\ElasticSearch;
 
 use App\Dto\GetEventDTO;
-use Elastica\Client;
-use Elastica\Request;
+use Elasticsearch\Client;
 
 class EventRepository
 {
@@ -15,7 +14,7 @@ class EventRepository
 
     private Client $client;
 
-    public function __construct(ElasticaClientGenerator $clientGenerator)
+    public function __construct(ElasticSearchClientGeneratorInterface $clientGenerator)
     {
         $this->client = $clientGenerator->getClient();
     }
@@ -25,14 +24,14 @@ class EventRepository
      */
     public function findAll(): array
     {
-        $index = $this->client->getIndex('familymeet');
-        $path = $index->getName().'/_search';
-        $query = '{"query": {"match_all": {}}}';
+        $jsonQuery = '{"query": {"match_all": {}}}';
 
-        /** @var array<string, array<string, string|array<string, int|string|array<int, string>>>> $hits */
-        $hits = $this->client->request($path, Request::GET, $query)->getData()['hits'];
-        /** @var array<string, array<string,string>|array<string, int|string|array<int, string>>> $results */
-        $results = $hits['hits'];
+        $params = [
+            'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+            'body' => $jsonQuery,
+        ];
+
+        $results = $this->client->search($params)['hits']['hits'];
 
         $events = [];
         foreach ($results as $result) {
@@ -56,9 +55,6 @@ class EventRepository
      */
     public function findBy(array $criterias): array
     {
-        $index = $this->client->getIndex('familymeet');
-        $path = $index->getName().'/_search';
-
         $match = '';
 
         foreach ($criterias as $criteriaKey => $criteriaValue) {
@@ -70,15 +66,17 @@ class EventRepository
                 $match .= ',';
             }
 
-            $match .= sprintf('{"match":{"%s": "%s"}}', self::ALLOWED_CRITERIAS[$criteriaKey], $criteriaValue);
+            $match .= sprintf('{"term":{"%s.keyword": "%s"}}', self::ALLOWED_CRITERIAS[$criteriaKey], $criteriaValue);
         }
 
-        $query = sprintf('{"query": {"bool": {"must":[%s]}}}', $match);
+        $jsonQuery = sprintf('{"query": {"bool": {"filter":[%s]}}}', $match);
 
-        /** @var array<string, array<string, string|array<string, int|string|array<int, string>>>> $hits */
-        $hits = $this->client->request($path, Request::GET, $query)->getData()['hits'];
-        /** @var array<string, array<string,string>|array<string, int|string|array<int, string>>> $results */
-        $results = $hits['hits'];
+        $params = [
+            'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+            'body' => $jsonQuery,
+        ];
+
+        $results = $this->client->search($params)['hits']['hits'];
 
         $events = [];
         foreach ($results as $result) {

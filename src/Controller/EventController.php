@@ -5,12 +5,10 @@ namespace App\Controller;
 use App\Dto\CreateEventDTO;
 use App\Dto\UpdateEventDTO;
 use App\Entity\User;
-use App\Service\ElasticSearch\ElasticaClientGenerator;
+use App\Service\ElasticSearch\ElasticSearchClientGeneratorInterface;
 use App\Service\ElasticSearch\EventRepository;
 use App\Utils\ArrayConverterTrait;
 use Doctrine\ORM\EntityManagerInterface;
-use Elastica\Document;
-use Elastica\Exception\NotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,7 +25,7 @@ final class EventController extends AbstractController
     public function post(
         Request $request,
         EntityManagerInterface $entityManager,
-        ElasticaClientGenerator $clientGenerator,
+        ElasticSearchClientGeneratorInterface $clientGenerator,
         EventDispatcherInterface $dispatcher
     ): JsonResponse {
         if (null === $request->query->get('hostId')) {
@@ -81,10 +79,10 @@ final class EventController extends AbstractController
 
         $client = $clientGenerator->getClient();
 
-        $index = $client->getIndex('familymeet');
-        $document = new Document(
-            $eventDTO->getId(),
-            [
+        $params = [
+            'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+            'id' => $eventDTO->getId(),
+            'body' => [
                 'title' => $eventDTO->getTitle(),
                 'location' => $eventDTO->getLocation(),
                 'date' => $eventDTO->getDate(),
@@ -94,10 +92,10 @@ final class EventController extends AbstractController
                 'hostId' => $eventDTO->getHostId(),
                 'guests' => $eventDTO->getGuests(),
             ],
-        );
+        ];
 
         try {
-            $index->addDocument($document);
+            $client->index($params);
         } catch (\Exception $exception) {
             return new JsonResponse(
                 [
@@ -114,24 +112,19 @@ final class EventController extends AbstractController
     #[Route('v1/api/events/{id}', name: 'v1_api_events_get_by_id', methods: ['GET'])]
     public function getById(
         string $id,
-        ElasticaClientGenerator $clientGenerator
+        ElasticSearchClientGeneratorInterface $clientGenerator
     ): JsonResponse {
         $client = $clientGenerator->getClient();
 
-        $index = $client->getIndex('familymeet');
+        $params = [
+            'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+            'id' => $id,
+        ];
 
         try {
             /** @var array<string, array<int, string>|int|string> $eventData */
-            $eventData = $index->getDocument($id)->getData();
+            $eventData = $client->get($params)['_source'];
             $eventDTO = CreateEventDTO::fromArray(array_merge(['id' => $id], $eventData));
-        } catch (NotFoundException $exception) {
-            return new JsonResponse(
-                [
-                    'code' => 'not_found',
-                    'message' => $exception->getMessage(),
-                ],
-                Response::HTTP_NOT_FOUND
-            );
         } catch (\Exception $exception) {
             return new JsonResponse(
                 [
@@ -199,12 +192,10 @@ final class EventController extends AbstractController
     #[Route('v1/api/events/{id}', name: 'events_put', methods: ['PUT'])]
     public function put(
         string $id,
-        ElasticaClientGenerator $clientGenerator,
+        ElasticSearchClientGeneratorInterface $clientGenerator,
         Request $request
     ): JsonResponse {
         $client = $clientGenerator->getClient();
-
-        $index = $client->getIndex('familymeet');
 
         $payload = $request->getPayload();
 
@@ -228,26 +219,22 @@ final class EventController extends AbstractController
             $participantMax,
         );
 
-        try {
-            $document = new Document(
-                $eventDTO->getId(),
-                [
+        $params = [
+            'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+            'id' => $eventDTO->getId(),
+            'body' => [
+                'doc' => [
                     'title' => $eventDTO->getTitle(),
                     'location' => $eventDTO->getLocation(),
                     'date' => $eventDTO->getDate(),
                     'category' => $eventDTO->getCategory(),
                     'participantMax' => $eventDTO->getParticipantMax(),
                 ],
-            );
-            $index->updateDocument($document);
-        } catch (NotFoundException $exception) {
-            return new JsonResponse(
-                [
-                    'code' => 'not_found',
-                    'message' => $exception->getMessage(),
-                ],
-                Response::HTTP_NOT_FOUND
-            );
+            ],
+        ];
+
+        try {
+            $client->update($params);
         } catch (\Exception $exception) {
             return new JsonResponse(
                 [
@@ -264,13 +251,16 @@ final class EventController extends AbstractController
     #[Route('v1/api/events/{id}', name: 'events_delete', methods: ['DELETE'])]
     public function delete(
         string $id,
-        ElasticaClientGenerator $clientGenerator
+        ElasticSearchClientGeneratorInterface $clientGenerator
     ): JsonResponse {
         $client = $clientGenerator->getClient();
-        $index = $client->getIndex('familymeet');
+        $params = [
+            'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+            'id' => $id,
+        ];
 
         try {
-            $index->deleteById($id);
+            $client->delete($params);
         } catch (\Exception $exception) {
             return new JsonResponse(
                 [

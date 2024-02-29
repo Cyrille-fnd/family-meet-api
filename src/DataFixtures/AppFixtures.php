@@ -5,21 +5,20 @@ namespace App\DataFixtures;
 use App\Entity\Chat;
 use App\Entity\Message;
 use App\Entity\User;
-use App\Service\ElasticSearch\ElasticaClientGenerator;
+use App\Service\ElasticSearch\ElasticSearchLocalClientGenerator;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Elastica\Document;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
     private UserPasswordHasherInterface $userPasswordHasher;
 
-    private ElasticaClientGenerator $clientGenerator;
+    private ElasticSearchLocalClientGenerator $clientGenerator;
 
     public function __construct(
         UserPasswordHasherInterface $userPasswordHasher,
-        ElasticaClientGenerator $clientGenerator
+        ElasticSearchLocalClientGenerator $clientGenerator
     ) {
         $this->userPasswordHasher = $userPasswordHasher;
         $this->clientGenerator = $clientGenerator;
@@ -109,10 +108,10 @@ class AppFixtures extends Fixture
 
         $client = $this->clientGenerator->getClient();
 
-        $index = $client->getIndex('familymeet');
-        $eventRaclette = new Document(
-            'event-raclette-id',
-            [
+        $eventRaclette = [
+            'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+            'id' => 'event-raclette-id',
+            'body' => [
                 'title' => 'Raclette chez Cyrille',
                 'location' => '2 rue Condorcet, 94800 Villejuif',
                 'date' => '2024-01-09 20:00:00',
@@ -126,11 +125,12 @@ class AppFixtures extends Fixture
                     'user-melinda-id',
                 ],
             ],
-        );
+        ];
 
-        $eventFive = new Document(
-            'event-five-id',
-            [
+        $eventFive = [
+            'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+            'id' => 'event-five-id',
+            'body' => [
                 'title' => 'Five à Créteil',
                 'location' => '2 rue des poireaux, 94000 Créteil',
                 'date' => '2024-01-09 20:00:00',
@@ -141,11 +141,12 @@ class AppFixtures extends Fixture
                 'guests' => [
                 ],
             ],
-        );
+        ];
 
-        $eventJeux = new Document(
-            'event-jeux-id',
-            [
+        $eventJeux = [
+            'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+            'id' => 'event-jeux-id',
+            'body' => [
                 'title' => 'Jeux de sociétés',
                 'location' => '15 rue du Commerce, 94310 Orly',
                 'date' => '2024-01-09 20:00:00',
@@ -157,11 +158,12 @@ class AppFixtures extends Fixture
                     'user-melinda-id',
                 ],
             ],
-        );
+        ];
 
-        $eventClub = new Document(
-            'event-club-id',
-            [
+        $eventClub = [
+            'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+            'id' => 'event-club-id',
+            'body' => [
                 'title' => 'Danser à la Favela',
                 'location' => '15 rue du Faubourg du temple, 75010 Paris',
                 'date' => '2024-01-09 20:00:00',
@@ -172,16 +174,28 @@ class AppFixtures extends Fixture
                 'guests' => [
                 ],
             ],
-        );
+        ];
 
         try {
-            $index->addDocuments([
-                $eventRaclette,
-                $eventFive,
-                $eventJeux,
-                $eventClub,
+            $client->indices()->create([
+                'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
             ]);
+
+            $jsonQuery = '{"query": {"match_all": {}}}';
+
+            $params = [
+                'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+                'body' => $jsonQuery,
+            ];
+
+            $client->deleteByQuery($params);
+            $client->create($eventRaclette);
+            $client->create($eventFive);
+            $client->create($eventJeux);
+            $client->create($eventClub);
         } catch (\Exception $exception) {
+            var_dump($_ENV['ELASTICSEARCH_HOST']);
+            var_dump($_ENV['ELASTICSEARCH_PORT']);
             var_dump($exception->getMessage());
         }
 

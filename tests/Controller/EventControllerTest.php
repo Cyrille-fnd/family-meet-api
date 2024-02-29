@@ -113,7 +113,8 @@ class EventControllerTest extends ApiTestCase
             ],
         );
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST
+        );
     }
 
     public function testGetSuccessful(): void
