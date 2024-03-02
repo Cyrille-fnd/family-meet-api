@@ -26,3 +26,5 @@ services:
         arguments:
             $elasticHost: '%env(ELASTICSEARCH_HOST)%'
             $elasticPort: '%env(ELASTICSEARCH_PORT)%'
+
+    Symfony\Component\Dotenv\Command\DotenvDumpCommand: ~
