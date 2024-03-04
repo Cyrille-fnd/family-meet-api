@@ -30,9 +30,6 @@ class Chat implements \JsonSerializable
     #[ORM\OneToMany(mappedBy: 'chat', targetEntity: Message::class, orphanRemoval: true)]
     private Collection $messages;
 
-    #[ORM\OneToOne(mappedBy: 'chat', cascade: ['persist', 'remove'])]
-    private ?Event $event = null;
-
     public function __construct()
     {
         $this->chatters = new ArrayCollection();
@@ -108,23 +105,6 @@ class Chat implements \JsonSerializable
     public function removeMessage(Message $message): static
     {
         $this->messages->removeElement($message);
-
-        return $this;
-    }
-
-    public function getEvent(): ?Event
-    {
-        return $this->event;
-    }
-
-    public function setEvent(Event $event): static
-    {
-        // set the owning side of the relation if necessary
-        if ($event->getChat() !== $this) {
-            $event->setChat($this);
-        }
-
-        $this->event = $event;
 
         return $this;
     }

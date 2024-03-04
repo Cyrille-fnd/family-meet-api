@@ -194,49 +194,31 @@ class AppFixtures extends Fixture
             $client->create($eventJeux);
             $client->create($eventClub);
         } catch (\Exception $exception) {
-            var_dump($_ENV['ELASTICSEARCH_HOST']);
-            var_dump($_ENV['ELASTICSEARCH_PORT']);
             var_dump($exception->getMessage());
         }
 
         $chatRaclette = new Chat();
         $chatRaclette
             ->setId('chat-raclette-id')
-            // ->setEvent($eventRaclette)
             ->setCreatedAt(new \DateTime());
-        /*foreach ($eventRaclette->getGuests() as $guest) {
-            $chatRaclette->addChatter($guest);
-        }*/
         $manager->persist($chatRaclette);
 
         $chatFive = new Chat();
         $chatFive
             ->setId('chat-five-id')
-            // ->setEvent($eventFive)
             ->setCreatedAt(new \DateTime());
-        /*foreach ($eventFive->getGuests() as $guest) {
-            $chatFive->addChatter($guest);
-        }*/
         $manager->persist($chatFive);
 
         $chatJeux = new Chat();
         $chatJeux
             ->setId('chat-jeux-id')
-            // ->setEvent($eventJeux)
             ->setCreatedAt(new \DateTime());
-        /*foreach ($eventJeux->getGuests() as $guest) {
-            $chatJeux->addChatter($guest);
-        }*/
         $manager->persist($chatJeux);
 
         $chatClub = new Chat();
         $chatClub
             ->setId('chat-club-id')
-            // ->setEvent($eventClub)
             ->setCreatedAt(new \DateTime());
-        /*foreach ($eventClub->getGuests() as $guest) {
-            $chatClub->addChatter($guest);
-        }*/
         $manager->persist($chatClub);
 
         $messageRaclette = new Message();
