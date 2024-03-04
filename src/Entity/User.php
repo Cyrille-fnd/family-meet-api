@@ -57,18 +57,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
     private \DateTimeInterface $createdAt;
 
     /**
-     * @var Collection<int, Event>
-     */
-    #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'guests')]
-    private Collection $events;
-
-    /**
-     * @var Collection<int, Event>
-     */
-    #[ORM\OneToMany(mappedBy: 'host', targetEntity: Event::class, orphanRemoval: true)]
-    private Collection $hostedEvents;
-
-    /**
      * @var Collection<int, Chat>
      */
     #[ORM\ManyToMany(targetEntity: Chat::class, mappedBy: 'chatters')]
@@ -76,8 +64,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
 
     public function __construct()
     {
-        $this->events = new ArrayCollection();
-        $this->hostedEvents = new ArrayCollection();
         $this->chats = new ArrayCollection();
     }
 
@@ -263,77 +249,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
     }
 
     /**
-     * @return Collection<int, Event>
-     */
-    public function getEvents(): Collection
-    {
-        return $this->events;
-    }
-
-    public function addEvent(Event $event): static
-    {
-        if (!$this->events->contains($event)) {
-            $this->events->add($event);
-            $event->addGuest($this);
-        }
-
-        return $this;
-    }
-
-    public function removeEvent(Event $event): static
-    {
-        if ($this->events->removeElement($event)) {
-            $event->removeGuest($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Event>
-     */
-    public function getHostedEvents(): Collection
-    {
-        return $this->hostedEvents;
-    }
-
-    public function addHostedEvent(Event $hostedEvent): static
-    {
-        if (!$this->hostedEvents->contains($hostedEvent)) {
-            $this->hostedEvents->add($hostedEvent);
-            $hostedEvent->setHost($this);
-        }
-
-        return $this;
-    }
-
-    public function removeHostedEvent(Event $hostedEvent): static
-    {
-        $this->hostedEvents->removeElement($hostedEvent);
-
-        return $this;
-    }
-
-    /**
-     * @return array<string, string|null>
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'id' => $this->getId(),
-            'email' => $this->getEmail(),
-            'sex' => $this->getSex(),
-            'firstname' => $this->getFirstname(),
-            'lastname' => $this->getLastname(),
-            'bio' => $this->getBio(),
-            'birthday' => $this->getBirthday()->format('Y-m-d H:i:s'),
-            'city' => $this->getCity(),
-            'pictureUrl' => $this->getPictureUrl(),
-            'createdAt' => $this->getCreatedAt()->format('Y-m-d H:i:s'),
-        ];
-    }
-
-    /**
      * @return Collection<int, Chat>
      */
     public function getChats(): Collection
@@ -358,5 +273,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
         }
 
         return $this;
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'email' => $this->getEmail(),
+            'sex' => $this->getSex(),
+            'firstname' => $this->getFirstname(),
+            'lastname' => $this->getLastname(),
+            'bio' => $this->getBio(),
+            'birthday' => $this->getBirthday()->format('Y-m-d H:i:s'),
+            'city' => $this->getCity(),
+            'pictureUrl' => $this->getPictureUrl(),
+            'createdAt' => $this->getCreatedAt()->format('Y-m-d H:i:s'),
+        ];
     }
 }
