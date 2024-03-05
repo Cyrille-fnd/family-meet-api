@@ -24,7 +24,7 @@ class EventRepository
      */
     public function findAll(): array
     {
-        $jsonQuery = '{"query": {"match_all": {}}}';
+        $jsonQuery = '{"query": {"match_all": {}}, "size": 1000}';
 
         $params = [
             'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],

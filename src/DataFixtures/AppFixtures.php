@@ -8,6 +8,8 @@ use App\Entity\User;
 use App\Service\ElasticSearch\ElasticSearchLocalClientGenerator;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Faker\Factory;
+use Faker\Generator;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
@@ -16,12 +18,15 @@ class AppFixtures extends Fixture
 
     private ElasticSearchLocalClientGenerator $clientGenerator;
 
+    private Generator $faker;
+
     public function __construct(
         UserPasswordHasherInterface $userPasswordHasher,
         ElasticSearchLocalClientGenerator $clientGenerator
     ) {
         $this->userPasswordHasher = $userPasswordHasher;
         $this->clientGenerator = $clientGenerator;
+        $this->faker = Factory::create();
     }
 
     public function load(ObjectManager $manager): void
@@ -177,9 +182,13 @@ class AppFixtures extends Fixture
         ];
 
         try {
-            $client->indices()->create([
+            $indexParams = [
                 'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
-            ]);
+            ];
+
+            if (!$client->indices()->exists($indexParams)) {
+                $client->indices()->create($indexParams);
+            }
 
             $jsonQuery = '{"query": {"match_all": {}}}';
 
@@ -229,6 +238,90 @@ class AppFixtures extends Fixture
             ->setCreatedAt(new \DateTime())
             ->setChat($chatRaclette);
         $manager->persist($messageRaclette);
+
+        $users = [];
+        for ($i = 0; $i <= 20; ++$i) {
+            $user = new User();
+            /** @var string $sex */
+            $sex = $this->faker->randomElement(['male, female']);
+            $user
+                ->setId($this->faker->uuid())
+                ->setEmail($this->faker->email())
+                ->setPassword($this->userPasswordHasher->hashPassword($user, $this->faker->password(10)))
+                ->setRoles(['ROLE_USER'])
+                ->setSex($sex)
+                ->setFirstname($this->faker->firstName($sex))
+                ->setLastname($this->faker->lastName())
+                ->setBio($this->faker->sentence())
+                ->setBirthday($this->faker->dateTimeBetween('-35 years'))
+                ->setCity($this->faker->city())
+                ->setPictureUrl('https://media.licdn.com/dms/image/C4D03AQFwsiU89fQuHg/profile-displayphoto-shrink_800_800/0/1610137674745?e=1707955200&v=beta&t=4-_8BYbCE6J4wIm8pdpPHJQN74thveWfwwMzQDqWIQc')
+                ->setCreatedAt(new \DateTime());
+            $manager->persist($user);
+
+            $users[] = $user;
+        }
+
+        for ($i = 0; $i <= 100; ++$i) {
+            /** @var User $host */
+            $host = $this->faker->randomElement($users);
+
+            $max = $this->faker->numberBetween(1, 20);
+
+            /** @var User[] $guests */
+            $guests = $this->faker->randomElements($users, $this->faker->numberBetween(1, $max));
+            $guests = array_map(function (User $guest) {
+                return $guest->getId();
+            }, $guests);
+
+            $event = [
+                'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
+                'id' => $this->faker->uuid(),
+                'body' => [
+                    'title' => $this->faker->sentence(7),
+                    'location' => $this->faker->address(),
+                    'date' => $this->faker->dateTimeThisYear()->format('Y-m-d h:i:s'),
+                    'category' => $this->faker->randomElement(['restaurant, bar, travail, sport']),
+                    'participantMax' => $max = $this->faker->numberBetween(1, 20),
+                    'createdAt' => $this->faker->dateTimeBetween('-2 years', '-3 months')
+                        ->format('y-m-d h:i:s'),
+                    'hostId' => $host->getId(),
+                    'guests' => $guests,
+                ],
+            ];
+
+            try {
+                $client->create($event);
+            } catch (\Exception $exception) {
+                var_dump($exception->getMessage());
+            }
+        }
+
+        for ($i = 0; $i <= 15; ++$i) {
+            $chatters = $this->faker->randomElements($users, null);
+
+            $chat = new Chat();
+            $chat
+                ->setId($this->faker->uuid())
+                ->setCreatedAt(new \DateTime());
+            $manager->persist($chat);
+            foreach ($chatters as $chatter) {
+                $chat->addChatter($chatter);
+            }
+
+            for ($i = 0; $i <= $this->faker->randomNumber(); ++$i) {
+                $message = new Message();
+                /** @var User $user */
+                $user = $this->faker->randomElement($users);
+                $message
+                    ->setId($this->faker->uuid())
+                    ->setAuthor($user)
+                    ->setContent($this->faker->sentence(7))
+                    ->setCreatedAt(new \DateTime())
+                    ->setChat($chat);
+                $manager->persist($message);
+            }
+        }
 
         $manager->flush();
     }
