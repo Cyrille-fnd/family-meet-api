@@ -11,7 +11,7 @@ class CreateEventDTO implements \JsonSerializable
         private string $id,
         private string $title,
         private string $location,
-        private string $date,
+        private \DateTime $date,
         private string $category,
         private int $participantMax,
         private \DateTime $createdAt,
@@ -46,7 +46,7 @@ class CreateEventDTO implements \JsonSerializable
             $id,
             $title,
             $location,
-            $date,
+            new \DateTime($date),
             $category,
             $participantMax,
             new \DateTime($createdAt),
@@ -69,7 +69,7 @@ class CreateEventDTO implements \JsonSerializable
         return $this->location;
     }
 
-    public function getDate(): string
+    public function getDate(): \DateTime
     {
         return $this->date;
     }
@@ -111,7 +111,7 @@ class CreateEventDTO implements \JsonSerializable
             'id' => $this->getId(),
             'title' => $this->getTitle(),
             'location' => $this->getLocation(),
-            'date' => $this->getDate(),
+            'date' => $this->getDate()->format('Y-m-d H:i:s'),
             'category' => $this->getCategory(),
             'createdAt' => $this->getCreatedAt()->format('Y-m-d H:i:s'),
             'participantMax' => $this->getParticipantMax(),
