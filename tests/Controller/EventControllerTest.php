@@ -67,6 +67,7 @@ class EventControllerTest extends ApiTestCase
         $body = [
             'title' => 'Diner au bureau',
             'location' => '2 rue Condorcet, 94800 Villejuif',
+            'description' => 'Ceci est une description',
             'date' => '2023-06-06 20:00:00',
             'category' => 'restaurant',
             'participantMax' => 10,
@@ -161,6 +162,7 @@ class EventControllerTest extends ApiTestCase
 
         $body = [
             'title' => 'Diner au bureau',
+            'description' => 'Ceci est une description',
             'location' => '2 rue Condorcet, 94800 Villejuif',
             'date' => '2023-06-06 20:00:00',
             'category' => 'restaurant',
@@ -196,6 +198,7 @@ class EventControllerTest extends ApiTestCase
 
         $body = [
             'title' => 'Raclette chez Cyrille',
+            'description' => 'Ceci est une description',
             'location' => '2 rue Condorcet, 94800 Villejuif',
             'date' => '2023-06-06 20:00:00',
             'category' => 'restaurant',
@@ -219,6 +222,7 @@ class EventControllerTest extends ApiTestCase
 
         $this->assertArraySubset([
             'title' => 'Raclette chez Cyrille',
+            'description' => 'Ceci est une description',
             'location' => '2 rue Condorcet, 94800 Villejuif',
             'date' => '2023-06-06 20:00:00',
             'category' => 'restaurant',

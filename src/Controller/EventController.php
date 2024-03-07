@@ -55,6 +55,8 @@ final class EventController extends AbstractController
 
         /** @var string $title */
         $title = $payload->get('title');
+        /** @var string $description */
+        $description = $payload->get('description');
         /** @var string $location */
         $location = $payload->get('location');
         /** @var string $date */
@@ -67,6 +69,7 @@ final class EventController extends AbstractController
         $eventDTO = new CreateEventDTO(
             Uuid::v4()->jsonSerialize(),
             $title,
+            $description,
             $location,
             new \DateTime($date),
             $category,
@@ -82,6 +85,7 @@ final class EventController extends AbstractController
             'id' => $eventDTO->getId(),
             'body' => [
                 'title' => $eventDTO->getTitle(),
+                'description' => $eventDTO->getDescription(),
                 'location' => $eventDTO->getLocation(),
                 'date' => $eventDTO->getDate()->format('Y-m-d h:i:s'),
                 'category' => $eventDTO->getCategory(),
@@ -201,6 +205,8 @@ final class EventController extends AbstractController
 
         /** @var string $title */
         $title = $payload->get('title');
+        /** @var string $description */
+        $description = $payload->get('description');
         /** @var string $location */
         $location = $payload->get('location');
         /** @var string $date */
@@ -213,6 +219,7 @@ final class EventController extends AbstractController
         $eventDTO = new UpdateEventDTO(
             $id,
             $title,
+            $description,
             $location,
             $date,
             $category,
@@ -225,6 +232,7 @@ final class EventController extends AbstractController
             'body' => [
                 'doc' => [
                     'title' => $eventDTO->getTitle(),
+                    'description' => $eventDTO->getDescription(),
                     'location' => $eventDTO->getLocation(),
                     'date' => $eventDTO->getDate(),
                     'category' => $eventDTO->getCategory(),

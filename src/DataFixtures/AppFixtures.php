@@ -118,6 +118,7 @@ class AppFixtures extends Fixture
             'id' => 'event-raclette-id',
             'body' => [
                 'title' => 'Raclette chez Cyrille',
+                'description' => $this->faker->sentence(50),
                 'location' => '2 rue Condorcet, 94800 Villejuif',
                 'date' => '2024-01-09 20:00:00',
                 'category' => 'restaurant',
@@ -137,6 +138,7 @@ class AppFixtures extends Fixture
             'id' => 'event-five-id',
             'body' => [
                 'title' => 'Five à Créteil',
+                'description' => $this->faker->sentence(50),
                 'location' => '2 rue des poireaux, 94000 Créteil',
                 'date' => '2024-01-09 20:00:00',
                 'category' => 'restaurant',
@@ -153,6 +155,7 @@ class AppFixtures extends Fixture
             'id' => 'event-jeux-id',
             'body' => [
                 'title' => 'Jeux de sociétés',
+                'description' => $this->faker->sentence(50),
                 'location' => '15 rue du Commerce, 94310 Orly',
                 'date' => '2024-01-09 20:00:00',
                 'category' => 'restaurant',
@@ -170,6 +173,7 @@ class AppFixtures extends Fixture
             'id' => 'event-club-id',
             'body' => [
                 'title' => 'Danser à la Favela',
+                'description' => $this->faker->sentence(50),
                 'location' => '15 rue du Faubourg du temple, 75010 Paris',
                 'date' => '2024-01-09 20:00:00',
                 'category' => 'restaurant',
@@ -293,6 +297,7 @@ class AppFixtures extends Fixture
                 'id' => $this->faker->uuid(),
                 'body' => [
                     'title' => $this->faker->sentence(7),
+                    'description' => $this->faker->sentence(50),
                     'location' => $this->faker->address(),
                     'date' => $this->faker->dateTimeThisYear()->format('Y-m-d h:i:s'),
                     'category' => $this->faker->randomElement(['restaurant, bar, travail, sport']),

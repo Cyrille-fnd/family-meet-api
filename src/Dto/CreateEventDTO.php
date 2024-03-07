@@ -10,6 +10,7 @@ class CreateEventDTO implements \JsonSerializable
     public function __construct(
         private string $id,
         private string $title,
+        private string $description,
         private string $location,
         private \DateTime $date,
         private string $category,
@@ -29,6 +30,8 @@ class CreateEventDTO implements \JsonSerializable
         $id = $eventData['id'];
         /** @var string $title */
         $title = $eventData['title'];
+        /** @var string $description */
+        $description = $eventData['description'];
         /** @var string $location */
         $location = $eventData['location'];
         /** @var string $date */
@@ -45,6 +48,7 @@ class CreateEventDTO implements \JsonSerializable
         return new self(
             $id,
             $title,
+            $description,
             $location,
             new \DateTime($date),
             $category,
@@ -62,6 +66,11 @@ class CreateEventDTO implements \JsonSerializable
     public function getTitle(): string
     {
         return $this->title;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
     }
 
     public function getLocation(): string
@@ -110,6 +119,7 @@ class CreateEventDTO implements \JsonSerializable
         return [
             'id' => $this->getId(),
             'title' => $this->getTitle(),
+            'description' => $this->getDescription(),
             'location' => $this->getLocation(),
             'date' => $this->getDate()->format('Y-m-d H:i:s'),
             'category' => $this->getCategory(),
