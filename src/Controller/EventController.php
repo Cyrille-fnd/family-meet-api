@@ -10,7 +10,6 @@ use App\Service\ElasticSearch\EventRepository;
 use App\Utils\ArrayConverterTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,8 +24,7 @@ final class EventController extends AbstractController
     public function post(
         Request $request,
         EntityManagerInterface $entityManager,
-        ElasticSearchClientGeneratorInterface $clientGenerator,
-        EventDispatcherInterface $dispatcher
+        ElasticSearchClientGeneratorInterface $clientGenerator
     ): JsonResponse {
         if (null === $request->query->get('hostId')) {
             return new JsonResponse(
@@ -88,7 +86,7 @@ final class EventController extends AbstractController
                 'date' => $eventDTO->getDate(),
                 'category' => $eventDTO->getCategory(),
                 'participantMax' => $eventDTO->getParticipantMax(),
-                'createdAt' => $eventDTO->getCreatedAt()->format('y-m-d h:i:s'),
+                'createdAt' => $eventDTO->getCreatedAt()->format('Y-m-d h:i:s'),
                 'hostId' => $eventDTO->getHostId(),
                 'guests' => $eventDTO->getGuests(),
             ],
@@ -146,9 +144,11 @@ final class EventController extends AbstractController
     ): JsonResponse {
         $hostId = $request->query->get('hostId');
         $guestId = $request->query->get('guestId');
+        /** @var int|null $page */
+        $page = $request->query->get('page');
 
         if (null === $hostId && null === $guestId) {
-            $events = $eventRepository->findAll();
+            $events = $eventRepository->findAll($page);
 
             return new JsonResponse(self::toArray($events));
         }

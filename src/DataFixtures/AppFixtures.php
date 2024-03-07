@@ -175,7 +175,7 @@ class AppFixtures extends Fixture
                 'category' => 'restaurant',
                 'participantMax' => 4,
                 'createdAt' => '2024-01-09 20:00:00',
-                'hostId' => 'user-cyrille-id',
+                'hostId' => 'user-melinda-id',
                 'guests' => [
                 ],
             ],
@@ -187,6 +187,20 @@ class AppFixtures extends Fixture
             ];
 
             if (!$client->indices()->exists($indexParams)) {
+                $indexParams['body'] = [
+                    'mappings' => [
+                        'properties' => [
+                            'date' => [
+                                'type' => 'date',
+                                'format' => 'yyyy-MM-dd HH:mm:ss',
+                            ],
+                            'createdAt' => [
+                                'type' => 'date',
+                                'format' => 'yyyy-MM-dd HH:mm:ss',
+                            ],
+                        ],
+                    ],
+                ];
                 $client->indices()->create($indexParams);
             }
 
@@ -284,7 +298,7 @@ class AppFixtures extends Fixture
                     'category' => $this->faker->randomElement(['restaurant, bar, travail, sport']),
                     'participantMax' => $max = $this->faker->numberBetween(1, 20),
                     'createdAt' => $this->faker->dateTimeBetween('-2 years', '-3 months')
-                        ->format('y-m-d h:i:s'),
+                        ->format('Y-m-d h:i:s'),
                     'hostId' => $host->getId(),
                     'guests' => $guests,
                 ],
