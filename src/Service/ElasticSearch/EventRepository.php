@@ -14,17 +14,29 @@ class EventRepository
 
     private Client $client;
 
-    public function __construct(ElasticSearchClientGeneratorInterface $clientGenerator)
-    {
+    private int $nbResultsPerPage;
+
+    public function __construct(
+        ElasticSearchClientGeneratorInterface $clientGenerator,
+        int $nbResultsPerPage
+    ) {
         $this->client = $clientGenerator->getClient();
+        $this->nbResultsPerPage = $nbResultsPerPage;
     }
 
     /**
      * @return GetEventDTO[]
      */
-    public function findAll(): array
+    public function findAll(?int $page): array
     {
-        $jsonQuery = '{"query": {"match_all": {}}, "size": 1000}';
+        $page = $page ?? 1;
+        $from = ($page * $this->nbResultsPerPage) - $this->nbResultsPerPage;
+
+        $jsonQuery = sprintf(
+            '{"from": %d,"size": %d,"query": {"match_all": {}},"sort":[{"date":"asc"}]}',
+            $from,
+            $this->nbResultsPerPage
+        );
 
         $params = [
             'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
