@@ -68,7 +68,7 @@ final class EventController extends AbstractController
             Uuid::v4()->jsonSerialize(),
             $title,
             $location,
-            $date,
+            new \DateTime($date),
             $category,
             $participantMax,
             new \DateTime(),
@@ -83,7 +83,7 @@ final class EventController extends AbstractController
             'body' => [
                 'title' => $eventDTO->getTitle(),
                 'location' => $eventDTO->getLocation(),
-                'date' => $eventDTO->getDate(),
+                'date' => $eventDTO->getDate()->format('Y-m-d h:i:s'),
                 'category' => $eventDTO->getCategory(),
                 'participantMax' => $eventDTO->getParticipantMax(),
                 'createdAt' => $eventDTO->getCreatedAt()->format('Y-m-d h:i:s'),
