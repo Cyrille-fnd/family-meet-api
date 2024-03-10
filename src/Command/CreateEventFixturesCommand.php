@@ -54,7 +54,15 @@ class CreateEventFixturesCommand extends Command
                     'description' => $faker->sentence(50),
                     'location' => $faker->address(),
                     'date' => $faker->dateTimeThisYear()->format('Y-m-d h:i:s'),
-                    'category' => $faker->randomElement(['restaurant, bar, travail, sport']),
+                    'category' => $faker->randomElement([
+                        'club',
+                        'bar',
+                        'travail',
+                        'sport',
+                        'cinema',
+                        'voyage',
+                        'restaurant',
+                    ]),
                     'participantMax' => $max = $faker->numberBetween(1, 20),
                     'createdAt' => $faker->dateTimeBetween('-2 years', '-3 months')
                         ->format('Y-m-d h:i:s'),
