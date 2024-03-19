@@ -30,7 +30,7 @@ sh:
 	$(EXEC_WWW) /bin/sh
 
 phpstan:
-	$(EXEC_WWW) vendor/bin/phpstan analyse -c phpstan.neon
+	$(EXEC_WWW) vendor/bin/phpstan analyse --memory-limit=256M -c phpstan.neon
 
 php-cs-fixer-check:
 	$(EXEC_WWW) vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix -v --dry-run --diff

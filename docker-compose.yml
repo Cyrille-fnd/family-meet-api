@@ -106,6 +106,16 @@ services:
     environment:
       - 'ELASTIC_HOSTS=["http://elasticsearch:9200"]'
 
+  amazon_s3:
+    image: adobe/s3mock:latest
+    environment:
+      - initialBuckets=family-meet/users
+      - 'AWS_ACCESS_KEY_ID=id'
+      - 'AWS_SECRET_ACCESS_KEY=key'
+    ports:
+      - '9090:9090'
+      - '9191:9191'
+
 volumes:
   db_data: {}
   elasticsearch_data: {}

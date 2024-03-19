@@ -9,3 +9,12 @@ services:
       $elasticCloudId: '%env(ELASTICSEARCH_CLOUD_ID)%'
       $elasticApiId: '%env(ELASTICSEARCH_API_ID)%'
       $elasticApiKey: '%env(ELASTICSEARCH_API_KEY)%'
+
+  Aws\S3\S3Client:
+    class: Aws\S3\S3Client
+    arguments:
+      - version: 'latest'
+        region: '%env(AWS_REGION)%'
+        use_path_style_endpoint: true
+        signature_version: 'v4'
+        credentials: {'key' : '%env(AWS_ACCESS_KEY_ID)%', 'secret' : '%env(AWS_SECRET_ACCESS_KEY)%'}
