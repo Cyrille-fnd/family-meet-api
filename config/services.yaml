@@ -5,6 +5,7 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     app.event_nb_results_per_page: 10
+    app.aws_s3_users_bucket_path: '%env(AWS_USERS_BUCKET_PATH)%'
 
 services:
     # default configuration for services in *this* file
@@ -33,3 +34,13 @@ services:
             $nbResultsPerPage: '%app.event_nb_results_per_page%'
 
     Symfony\Component\Dotenv\Command\DotenvDumpCommand: ~
+
+    Aws\S3\S3Client:
+        class: Aws\S3\S3Client
+        arguments:
+            - version: 'latest'
+              region: '%env(AWS_REGION)%'
+              endpoint: '%env(AWS_S3_ENDPOINT)%'
+              use_path_style_endpoint: true
+              signature_version: 'v4'
+              credentials: {'key' : '%env(AWS_ACCESS_KEY_ID)%', 'secret' : '%env(AWS_SECRET_ACCESS_KEY)%'}

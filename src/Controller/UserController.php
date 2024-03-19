@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Message\RegisteredUserEvent;
+use Aws\S3\S3Client;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -65,7 +67,7 @@ final class UserController extends AbstractController
             ->setBio($payload['bio'])
             ->setBirthday(new \DateTime($payload['birthday']))
             ->setCity($payload['city'])
-            ->setPictureUrl($payload['pictureUrl'])
+            ->setPictureUrl(null)
             ->setCreatedAt(new \DateTime());
 
         $entityManager->persist($user);
@@ -164,6 +166,42 @@ final class UserController extends AbstractController
         $entityManager->flush();
 
         return new JsonResponse($user->jsonSerialize());
+    }
+
+    #[Route('v1/api/users/{id}/upload', name: 'v1_api_users_patch', methods: ['POST'])]
+    public function patch(
+        User $user,
+        EntityManagerInterface $entityManager,
+        Request $request,
+        S3Client $client
+    ): JsonResponse {
+        /** @var File $file */
+        $file = $request->files->get('profilePicture');
+
+        try {
+            $client->putObject([
+                'Bucket' => $this->getParameter('app.aws_s3_users_bucket_path'),
+                'Key' => $user->getId(),
+                'SourceFile' => $file,
+            ]);
+
+            /** @var string $bucketPath */
+            $bucketPath = $this->getParameter('app.aws_s3_users_bucket_path');
+            $user->setPictureUrl(str_replace('amazon_s3', 'localhost',
+                $client->getObjectUrl(
+                    $bucketPath,
+                    $user->getId()
+                )
+            ));
+            $entityManager->flush();
+        } catch (\Throwable $exception) {
+            return new JsonResponse([
+                'code' => 'bad_request',
+                'message' => $exception->getMessage(),
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        return new JsonResponse([], Response::HTTP_OK);
     }
 
     #[Route('/v1/api/users/{id}', name: 'v1_api_users_delete', methods: ['DELETE'])]
