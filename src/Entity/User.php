@@ -2,6 +2,13 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -9,15 +16,38 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ApiResource(
+    normalizationContext: ['groups' => 'read'],
+    denormalizationContext: ['groups' => 'write']
+)]
+#[GetCollection(
+    normalizationContext: ['groups' => ['read:collection']]
+)]
+#[Post(
+    denormalizationContext: ['groups' => ['write:item']]
+)]
+#[Get(
+    normalizationContext: ['groups' => ['read:item']]
+)]
+#[Put(
+    denormalizationContext: ['groups' => ['write:item']]
+)]
+#[Delete]
+#[Patch(
+    denormalizationContext: ['groups' => ['write:item']]
+)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSerializable
 {
     #[ORM\Id]
     #[ORM\Column]
+    #[Groups(['read:collection', 'read:item'])]
     private string $id;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Groups(['read:collection', 'write:item', 'read:item'])]
     private string $email;
 
     /**
@@ -30,30 +60,39 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Groups(['write:item'])]
     private string $password;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['write:item', 'read:item'])]
     private string $sex;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read:collection', 'write:item', 'read:item'])]
     private string $firstname;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read:collection', 'write:item', 'read:item'])]
     private string $lastname;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['read', 'write:item', 'read:item'])]
     private ?string $bio = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['read', 'write:item', 'read:item'])]
     private \DateTimeInterface $birthday;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read:collection', 'write:item', 'read:item'])]
     private string $city;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['read:collection', 'read:item'])]
     private ?string $pictureUrl = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['read:item'])]
     private \DateTimeInterface $createdAt;
 
     /**
