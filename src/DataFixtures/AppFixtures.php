@@ -3,9 +3,9 @@
 namespace App\DataFixtures;
 
 use App\Entity\Chat;
+use App\Entity\Meet;
 use App\Entity\Message;
 use App\Entity\User;
-use App\Service\ElasticSearch\ElasticSearchLocalClientGenerator;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
@@ -16,16 +16,12 @@ class AppFixtures extends Fixture
 {
     private UserPasswordHasherInterface $userPasswordHasher;
 
-    private ElasticSearchLocalClientGenerator $clientGenerator;
-
     private Generator $faker;
 
     public function __construct(
-        UserPasswordHasherInterface $userPasswordHasher,
-        ElasticSearchLocalClientGenerator $clientGenerator
+        UserPasswordHasherInterface $userPasswordHasher
     ) {
         $this->userPasswordHasher = $userPasswordHasher;
-        $this->clientGenerator = $clientGenerator;
         $this->faker = Factory::create();
     }
 
@@ -33,7 +29,6 @@ class AppFixtures extends Fixture
     {
         $userCyrille = new User();
         $userCyrille
-            ->setId('user-cyrille-id')
             ->setEmail('ferandc@gmail.com')
             ->setPassword($this->userPasswordHasher->hashPassword($userCyrille, 'password'))
             ->setRoles(['ROLE_USER'])
@@ -49,7 +44,6 @@ class AppFixtures extends Fixture
 
         $userMelinda = new User();
         $userMelinda
-            ->setId('user-melinda-id')
             ->setEmail('apatoutm@gmail.com')
             ->setPassword($this->userPasswordHasher->hashPassword($userMelinda, 'password'))
             ->setRoles(['ROLE_USER'])
@@ -65,7 +59,6 @@ class AppFixtures extends Fixture
 
         $userGeoffrey = new User();
         $userGeoffrey
-            ->setId('user-geoffrey-id')
             ->setEmail('apatoutg@gmail.com')
             ->setPassword($this->userPasswordHasher->hashPassword($userGeoffrey, 'password'))
             ->setRoles(['ROLE_USER'])
@@ -81,7 +74,6 @@ class AppFixtures extends Fixture
 
         $userDimitri = new User();
         $userDimitri
-            ->setId('user-dimitri-id')
             ->setEmail('niced@gmail.com')
             ->setPassword($this->userPasswordHasher->hashPassword($userDimitri, 'password'))
             ->setRoles(['ROLE_USER'])
@@ -97,7 +89,6 @@ class AppFixtures extends Fixture
 
         $userIngrid = new User();
         $userIngrid
-            ->setId('user-ingrid-id')
             ->setEmail('apatouti@gmail.com')
             ->setPassword($this->userPasswordHasher->hashPassword($userIngrid, 'password'))
             ->setRoles(['ROLE_USER'])
@@ -111,146 +102,81 @@ class AppFixtures extends Fixture
             ->setCreatedAt(new \DateTime());
         $manager->persist($userIngrid);
 
-        $client = $this->clientGenerator->getClient();
-
-        $eventRaclette = [
-            'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
-            'id' => 'event-raclette-id',
-            'body' => [
-                'title' => 'Raclette chez Cyrille',
-                'description' => $this->faker->sentence(50),
-                'location' => '2 rue Condorcet, 94800 Villejuif',
-                'date' => '2024-01-09 20:00:00',
-                'category' => 'restaurant',
-                'participantMax' => 6,
-                'createdAt' => '2024-01-09 20:00:00',
-                'hostId' => 'user-cyrille-id',
-                'guests' => [
-                    'user-dimitri-id',
-                    'user-geoffrey-id',
-                    'user-melinda-id',
-                ],
-            ],
-        ];
-
-        $eventFive = [
-            'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
-            'id' => 'event-five-id',
-            'body' => [
-                'title' => 'Five à Créteil',
-                'description' => $this->faker->sentence(50),
-                'location' => '2 rue des poireaux, 94000 Créteil',
-                'date' => '2024-01-09 20:00:00',
-                'category' => 'restaurant',
-                'participantMax' => 5,
-                'createdAt' => '2024-01-09 20:00:00',
-                'hostId' => 'user-dimitri-id',
-                'guests' => [
-                ],
-            ],
-        ];
-
-        $eventJeux = [
-            'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
-            'id' => 'event-jeux-id',
-            'body' => [
-                'title' => 'Jeux de sociétés',
-                'description' => $this->faker->sentence(50),
-                'location' => '15 rue du Commerce, 94310 Orly',
-                'date' => '2024-01-09 20:00:00',
-                'category' => 'restaurant',
-                'participantMax' => 4,
-                'createdAt' => '2024-01-09 20:00:00',
-                'hostId' => 'user-ingrid-id',
-                'guests' => [
-                    'user-melinda-id',
-                ],
-            ],
-        ];
-
-        $eventClub = [
-            'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
-            'id' => 'event-club-id',
-            'body' => [
-                'title' => 'Danser à la Favela',
-                'description' => $this->faker->sentence(50),
-                'location' => '15 rue du Faubourg du temple, 75010 Paris',
-                'date' => '2024-01-09 20:00:00',
-                'category' => 'restaurant',
-                'participantMax' => 4,
-                'createdAt' => '2024-01-09 20:00:00',
-                'hostId' => 'user-melinda-id',
-                'guests' => [
-                ],
-            ],
-        ];
-
-        try {
-            $indexParams = [
-                'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
-            ];
-
-            if (!$client->indices()->exists($indexParams)) {
-                $indexParams['body'] = [
-                    'mappings' => [
-                        'properties' => [
-                            'date' => [
-                                'type' => 'date',
-                                'format' => 'yyyy-MM-dd HH:mm:ss',
-                            ],
-                            'createdAt' => [
-                                'type' => 'date',
-                                'format' => 'yyyy-MM-dd HH:mm:ss',
-                            ],
-                        ],
-                    ],
-                ];
-                $client->indices()->create($indexParams);
-            }
-
-            $jsonQuery = '{"query": {"match_all": {}}}';
-
-            $params = [
-                'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
-                'body' => $jsonQuery,
-            ];
-
-            $client->deleteByQuery($params);
-            $client->create($eventRaclette);
-            $client->create($eventFive);
-            $client->create($eventJeux);
-            $client->create($eventClub);
-        } catch (\Exception $exception) {
-            var_dump($exception->getMessage());
-        }
-
         $chatRaclette = new Chat();
         $chatRaclette
-            ->setId('chat-raclette-id')
-            ->setCreatedAt(new \DateTime());
+            ->addChatter($userCyrille)
+            ->addChatter($userMelinda)
+            ->addChatter($userGeoffrey);
         $manager->persist($chatRaclette);
 
         $chatFive = new Chat();
-        $chatFive
-            ->setId('chat-five-id')
-            ->setCreatedAt(new \DateTime());
+        $chatFive->addChatter($userDimitri);
         $manager->persist($chatFive);
 
         $chatJeux = new Chat();
         $chatJeux
-            ->setId('chat-jeux-id')
-            ->setCreatedAt(new \DateTime());
+            ->addChatter($userIngrid)
+            ->addChatter($userMelinda);
         $manager->persist($chatJeux);
 
         $chatClub = new Chat();
         $chatClub
-            ->setId('chat-club-id')
-            ->setCreatedAt(new \DateTime());
+            ->addChatter($userMelinda);
         $manager->persist($chatClub);
+
+        $meetRaclette = new Meet();
+        $meetRaclette
+            ->setTitle('Raclette chez Cyrille')
+            ->setDescription($this->faker->sentence(50))
+            ->setLocation('Raclette chez Cyrille')
+            ->setDate(new \DateTime('2024-01-09 20:00:00'))
+            ->setCategory('restaurant')
+            ->setMaxGuests(6)
+            ->setHost($userCyrille)
+            ->setChat($chatRaclette)
+            ->addGuest($userMelinda)
+            ->addGuest($userGeoffrey);
+        $manager->persist($meetRaclette);
+
+        $meetFive = new Meet();
+        $meetFive
+            ->setTitle('Five à Créteil')
+            ->setDescription($this->faker->sentence(50))
+            ->setLocation('2 rue des poireaux, 94000 Créteil')
+            ->setDate(new \DateTime('2024-01-09 20:00:00'))
+            ->setCategory('sport')
+            ->setMaxGuests(5)
+            ->setHost($userDimitri)
+            ->setChat($chatFive);
+        $manager->persist($meetFive);
+
+        $meetJeux = new Meet();
+        $meetJeux
+            ->setTitle('Jeux de sociétés')
+            ->setDescription($this->faker->sentence(50))
+            ->setLocation('15 rue du Commerce, 94310 Orly')
+            ->setDate(new \DateTime('2024-01-09 20:00:00'))
+            ->setCategory('jeux')
+            ->setMaxGuests(4)
+            ->setHost($userIngrid)
+            ->setChat($chatJeux)
+            ->addGuest($userMelinda);
+        $manager->persist($meetJeux);
+
+        $meetClubbing = new Meet();
+        $meetClubbing
+            ->setTitle('Danser à la Favela')
+            ->setDescription($this->faker->sentence(50))
+            ->setLocation('15 rue du Faubourg du temple, 75010 Paris')
+            ->setDate(new \DateTime('2024-01-09 20:00:00'))
+            ->setCategory('clubbing')
+            ->setMaxGuests(4)
+            ->setHost($userMelinda)
+            ->setChat($chatClub);
+        $manager->persist($meetClubbing);
 
         $messageRaclette = new Message();
         $messageRaclette
-            ->setId('message-raclette-1-id')
             ->setAuthor($userDimitri)
             ->setContent('Trop hate de me régaler !!')
             ->setCreatedAt(new \DateTime())
@@ -258,12 +184,11 @@ class AppFixtures extends Fixture
         $manager->persist($messageRaclette);
 
         $users = [];
-        for ($i = 0; $i <= 20; ++$i) {
+        for ($i = 0; $i <= 3; ++$i) {
             $user = new User();
             /** @var string $sex */
             $sex = $this->faker->randomElement(['male, female']);
             $user
-                ->setId($this->faker->uuid())
                 ->setEmail($this->faker->email())
                 ->setPassword($this->userPasswordHasher->hashPassword($user, $this->faker->password(10)))
                 ->setRoles(['ROLE_USER'])
@@ -280,60 +205,43 @@ class AppFixtures extends Fixture
             $users[] = $user;
         }
 
-        for ($i = 0; $i <= 100; ++$i) {
+        for ($i = 0; $i <= 5; ++$i) {
             /** @var User $host */
             $host = $this->faker->randomElement($users);
 
-            $max = $this->faker->numberBetween(1, 20);
+            $maxGuests = $this->faker->numberBetween(1, count($users));
 
             /** @var User[] $guests */
-            $guests = $this->faker->randomElements($users, $this->faker->numberBetween(1, $max));
-            $guests = array_map(function (User $guest) {
-                return $guest->getId();
-            }, $guests);
-
-            $event = [
-                'index' => $_ENV['ELASTICSEARCH_INDEX_NAME'],
-                'id' => $this->faker->uuid(),
-                'body' => [
-                    'title' => $this->faker->sentence(7),
-                    'description' => $this->faker->sentence(50),
-                    'location' => $this->faker->address(),
-                    'date' => $this->faker->dateTimeThisYear()->format('Y-m-d h:i:s'),
-                    'category' => $this->faker->randomElement(['restaurant, bar, travail, sport']),
-                    'participantMax' => $max = $this->faker->numberBetween(1, 20),
-                    'createdAt' => $this->faker->dateTimeBetween('-2 years', '-3 months')
-                        ->format('Y-m-d h:i:s'),
-                    'hostId' => $host->getId(),
-                    'guests' => $guests,
-                ],
-            ];
-
-            try {
-                $client->create($event);
-            } catch (\Exception $exception) {
-                var_dump($exception->getMessage());
-            }
-        }
-
-        for ($i = 0; $i <= 15; ++$i) {
-            $chatters = $this->faker->randomElements($users, null);
+            $guests = $this->faker->randomElements($users, $this->faker->numberBetween(1, $maxGuests));
 
             $chat = new Chat();
-            $chat
-                ->setId($this->faker->uuid())
-                ->setCreatedAt(new \DateTime());
+            $chat->addChatter($host);
             $manager->persist($chat);
-            foreach ($chatters as $chatter) {
-                $chat->addChatter($chatter);
+
+            $meet = new Meet();
+            /** @var string $meetCategory */
+            $meetCategory = $this->faker->randomElement(['clubbing', 'restaurant', 'bar', 'travail', 'sport']);
+            $meet
+                ->setTitle($this->faker->sentence(7))
+                ->setDescription($this->faker->sentence(50))
+                ->setLocation($this->faker->address())
+                ->setDate($this->faker->dateTimeThisYear())
+                ->setCategory($meetCategory)
+                ->setMaxGuests($maxGuests)
+                ->setChat($chat)
+                ->setHost($host);
+            $manager->persist($meet);
+
+            foreach ($guests as $guest) {
+                $meet->addGuest($guest);
+                $chat->addChatter($guest);
             }
 
-            for ($i = 0; $i <= $this->faker->randomNumber(); ++$i) {
+            for ($i = 0; $i <= $this->faker->randomNumber(1); ++$i) {
                 $message = new Message();
                 /** @var User $user */
-                $user = $this->faker->randomElement($users);
+                $user = $this->faker->randomElement($guests);
                 $message
-                    ->setId($this->faker->uuid())
                     ->setAuthor($user)
                     ->setContent($this->faker->sentence(7))
                     ->setCreatedAt(new \DateTime())

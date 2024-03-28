@@ -19,7 +19,7 @@ use Symfony\Component\Uid\Uuid;
 
 final class UserController extends AbstractController
 {
-    #[Route('/v1/api/register', name: 'v1_api_users_post', methods: ['POST'])]
+    #[Route('/api/v2/users', name: 'api_v2_users_post', methods: ['POST'])]
     public function post(
         Request $request,
         EntityManagerInterface $entityManager,
@@ -50,14 +50,13 @@ final class UserController extends AbstractController
 
         if (null !== $user) {
             return new JsonResponse([
-                    'code' => 'cannot_create_user',
-                    'message' => 'cannot create user',
+                    'code' => 'user_already_exists',
+                    'message' => 'user already exists',
             ], Response::HTTP_BAD_REQUEST);
         }
 
         $user = new User();
         $user
-            ->setId(Uuid::v4()->jsonSerialize())
             ->setEmail($payload['email'])
             ->setPassword($passwordHasher->hashPassword($user, $payload['password']))
             ->setRoles(['ROLE_USER'])
@@ -75,14 +74,17 @@ final class UserController extends AbstractController
 
         $token = $JWTTokenManager->create($user);
 
-        $bus->dispatch(new RegisteredUserEvent($user->getId()));
+        /** @var Uuid $userId */
+        $userId = $user->getId();
+
+        $bus->dispatch(new RegisteredUserEvent($userId->toRfc4122()));
 
         return new JsonResponse(array_merge(['token' => $token], $user->jsonSerialize()),
             Response::HTTP_CREATED
         );
     }
 
-    #[Route('/v1/api/users', name: 'v1_api_users_get', methods: ['GET'])]
+    #[Route('/api/v2/users', name: 'api_v2_users_get', methods: ['GET'])]
     public function get(
         Request $request,
         EntityManagerInterface $em
@@ -121,7 +123,7 @@ final class UserController extends AbstractController
         );
     }
 
-    #[Route('/v1/api/users/{id}', name: 'v1_api_users_get_by_id', methods: ['GET'])]
+    #[Route('/api/v2/users/{id}', name: 'api_v2_users_get_by_id', methods: ['GET'])]
     public function getById(
         User $user
     ): JsonResponse {
@@ -133,7 +135,7 @@ final class UserController extends AbstractController
         );
     }
 
-    #[Route('v1/api/users/{id}', name: 'v1_api_users_put', methods: ['PUT'])]
+    #[Route('api/v2/users/{id}', name: 'api_v2_users_put', methods: ['PUT'])]
     public function put(
         User $user,
         EntityManagerInterface $entityManager,
@@ -168,7 +170,7 @@ final class UserController extends AbstractController
         return new JsonResponse($user->jsonSerialize());
     }
 
-    #[Route('v1/api/users/{id}/upload', name: 'v1_api_users_patch', methods: ['POST'])]
+    #[Route('api/v2/users/{id}/upload', name: 'api_v2_users_upload', methods: ['POST'])]
     public function patch(
         User $user,
         EntityManagerInterface $entityManager,
@@ -185,12 +187,15 @@ final class UserController extends AbstractController
                 'SourceFile' => $file,
             ]);
 
+            /** @var Uuid $userId */
+            $userId = $user->getId();
+
             /** @var string $bucketPath */
             $bucketPath = $this->getParameter('app.aws_s3_users_bucket_path');
             $user->setPictureUrl(str_replace('amazon_s3', 'localhost',
                 $client->getObjectUrl(
                     $bucketPath,
-                    $user->getId()
+                    $userId->toRfc4122()
                 )
             ));
             $entityManager->flush();
@@ -204,7 +209,7 @@ final class UserController extends AbstractController
         return new JsonResponse([], Response::HTTP_OK);
     }
 
-    #[Route('/v1/api/users/{id}', name: 'v1_api_users_delete', methods: ['DELETE'])]
+    #[Route('/api/v2/users/{id}', name: 'api_v2_users_delete', methods: ['DELETE'])]
     public function delete(
         User $user,
         EntityManagerInterface $entityManager

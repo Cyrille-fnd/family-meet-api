@@ -7,13 +7,17 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: ChatRepository::class)]
 class Chat implements \JsonSerializable
 {
     #[ORM\Id]
-    #[ORM\Column]
-    private string $id;
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    private ?Uuid $id = null;
 
     /**
      * @var Collection<int, User>
@@ -34,14 +38,15 @@ class Chat implements \JsonSerializable
     {
         $this->chatters = new ArrayCollection();
         $this->messages = new ArrayCollection();
+        $this->createdAt = new \DateTime();
     }
 
-    public function getId(): string
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
 
-    public function setId(string $id): static
+    public function setId(?Uuid $id): static
     {
         $this->id = $id;
 
@@ -114,8 +119,11 @@ class Chat implements \JsonSerializable
      */
     public function jsonSerialize(): array
     {
+        /** @var Uuid $userId */
+        $userId = $this->getId();
+
         return [
-            'id' => $this->getId(),
+            'id' => $userId->toRfc4122(),
             'chatters' => array_map(function (User $user) {
                 return $user->jsonSerialize();
             }, $this->getChatters()->toArray()),

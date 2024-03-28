@@ -3,13 +3,6 @@ services:
     autowire: true
     autoconfigure: true
 
-  App\Service\ElasticSearch\ElasticSearchClientGeneratorInterface:
-    class: App\Service\ElasticSearch\ElasticSearchProdClientGenerator
-    arguments:
-      $elasticCloudId: '%env(ELASTICSEARCH_CLOUD_ID)%'
-      $elasticApiId: '%env(ELASTICSEARCH_API_ID)%'
-      $elasticApiKey: '%env(ELASTICSEARCH_API_KEY)%'
-
   Aws\S3\S3Client:
     class: Aws\S3\S3Client
     arguments:

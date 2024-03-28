@@ -2,103 +2,111 @@
 
 namespace App\Tests\Controller;
 
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use App\Entity\Chat;
+use App\Entity\Meet;
 use App\Entity\User;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use App\Tests\BaseTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Uid\Uuid;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
-class JoinControllerTest extends ApiTestCase
+class JoinControllerTest extends BaseTestCase
 {
-    private JWTTokenManagerInterface $jwtTokenManager;
-
-    protected function setUp(): void
+    public function __construct(string $name)
     {
-        /** @var JWTTokenManagerInterface $jwtTokenManager */
-        $jwtTokenManager = static::getContainer()->get('lexik_jwt_authentication.jwt_manager');
-        $this->jwtTokenManager = $jwtTokenManager;
+        parent::__construct($name);
     }
 
-    public function testJoinUserNotFound(): void
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function testJoinReturnsUser404(): void
     {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
+        $jwtToken = $this->authenticate();
 
-        $token = $this->jwtTokenManager->create($user);
+        $host = $this->createUser();
+        $meet = $this->createMeet($host);
 
-        $client = static::createClient();
+        /** @var Uuid $meetId */
+        $meetId = $meet->getId();
+        $guestId = Uuid::v4();
 
-        $body = [
-            'userId' => 'user-gaston-id',
-        ];
-
-        $client->request(
+        $response = $this->client->request(
             Request::METHOD_POST,
-            '/v1/api/events/event-raclette-id/join',
+            sprintf('/api/v2/meets/%s/users/%s/join', $meetId->toRfc4122(), $guestId->toRfc4122()),
             [
-                'body' => json_encode($body),
                 'headers' => [
-                    'Authorization' => 'bearer '.$token,
+                    'Authorization' => 'bearer '.$jwtToken,
                 ],
             ],
         );
 
+        /** @var array<string, string> $content */
+        $content = json_decode($response->getContent(false), true);
+
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        $this->assertEquals('user_not_found', $content['code']);
     }
 
-    public function testJoinEventNotFound(): void
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function testJoinReturnsMeet404(): void
     {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
+        $jwtToken = $this->authenticate();
 
-        $token = $this->jwtTokenManager->create($user);
+        $meetId = Uuid::v4();
+        /** @var Uuid $guestId */
+        $guestId = $this->createUser()->getId();
 
-        $client = static::createClient();
-
-        $body = [
-            'userId' => 'user-gaston-id',
-        ];
-
-        $client->request(
+        $response = $this->client->request(
             Request::METHOD_POST,
-            '/v1/api/events/event-foot-id/join',
+            sprintf('/api/v2/meets/%s/users/%s/join', $meetId->toRfc4122(), $guestId->toRfc4122()),
             [
-                'body' => json_encode($body),
                 'headers' => [
-                    'Authorization' => 'bearer '.$token,
+                    'Authorization' => 'bearer '.$jwtToken,
                 ],
             ],
         );
 
+        /** @var array<string, string> $content */
+        $content = json_decode($response->getContent(false), true);
+
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        $this->assertEquals('meet_not_found', $content['code']);
     }
 
-    public function testJoinSuccessful(): void
+    /**
+     * @throws TransportExceptionInterface
+     */
+    public function testJoinReturn200(): void
     {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
+        $jwtToken = $this->authenticate();
 
-        $token = $this->jwtTokenManager->create($user);
+        $host = $this->createUser();
+        $meet = $this->createMeet($host);
 
-        $client = static::createClient();
+        /** @var Uuid $meetId */
+        $meetId = $meet->getId();
+        /** @var Uuid $guestId */
+        $guestId = $this->createUser()->getId();
 
-        $body = [
-            'userId' => 'user-cyrille-id',
-        ];
-
-        $client->request(
+        $this->client->request(
             Request::METHOD_POST,
-            '/v1/api/events/event-raclette-id/join',
+            sprintf('/api/v2/meets/%s/users/%s/join', $meetId->toRfc4122(), $guestId->toRfc4122()),
             [
-                'body' => json_encode($body),
                 'headers' => [
-                    'Authorization' => 'bearer '.$token,
+                    'Authorization' => 'bearer '.$jwtToken,
                 ],
             ],
         );
@@ -106,90 +114,144 @@ class JoinControllerTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
     }
 
-    public function testUnjoinUserNotFound(): void
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function testUnjoinReturnsUser404(): void
     {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
+        $jwtToken = $this->authenticate();
 
-        $token = $this->jwtTokenManager->create($user);
+        $host = $this->createUser();
+        $meet = $this->createMeet($host);
 
-        $client = static::createClient();
+        /** @var Uuid $meetId */
+        $meetId = $meet->getId();
+        $guestId = Uuid::v4();
 
-        $body = [
-            'userId' => 'user-gaston-id',
-        ];
-
-        $client->request(
+        $response = $this->client->request(
             Request::METHOD_DELETE,
-            '/v1/api/events/event-raclette-id/unjoin',
+            sprintf('/api/v2/meets/%s/users/%s/unjoin', $meetId, $guestId),
             [
-                'body' => json_encode($body),
                 'headers' => [
-                    'Authorization' => 'bearer '.$token,
+                    'Authorization' => 'bearer '.$jwtToken,
                 ],
             ],
         );
 
+        /** @var array<string, string> $content */
+        $content = json_decode($response->getContent(false), true);
+
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        $this->assertEquals('user_not_found', $content['code']);
     }
 
-    public function testUnjoinEventNotFound(): void
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function testUnjoinReturnsMeet404(): void
     {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
+        $jwtToken = $this->authenticate();
 
-        $token = $this->jwtTokenManager->create($user);
+        $meetId = Uuid::v4();
+        /** @var Uuid $guestId */
+        $guestId = $this->createUser()->getId();
 
-        $client = static::createClient();
-
-        $body = [
-            'userId' => 'user-gaston-id',
-        ];
-
-        $client->request(
+        $response = $this->client->request(
             Request::METHOD_DELETE,
-            '/v1/api/events/event-foot-id/unjoin',
+            sprintf('/api/v2/meets/%s/users/%s/unjoin', $meetId->toRfc4122(), $guestId->toRfc4122()),
             [
-                'body' => json_encode($body),
                 'headers' => [
-                    'Authorization' => 'bearer '.$token,
+                    'Authorization' => 'bearer '.$jwtToken,
                 ],
             ],
         );
 
+        /** @var array<string, string> $content */
+        $content = json_decode($response->getContent(false), true);
+
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        $this->assertEquals('meet_not_found', $content['code']);
     }
 
-    public function testUnjoinSuccessful(): void
+    /**
+     * @throws TransportExceptionInterface
+     */
+    public function testUnjoinReturns200(): void
     {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
+        $jwtToken = $this->authenticate();
 
-        $token = $this->jwtTokenManager->create($user);
+        $host = $this->createUser();
+        $meet = $this->createMeet($host);
 
-        $client = static::createClient();
+        /** @var Uuid $meetId */
+        $meetId = $meet->getId();
+        /** @var Uuid $guestId */
+        $guestId = $this->createUser()->getId();
 
-        $body = [
-            'userId' => 'user-cyrille-id',
-        ];
-
-        $client->request(
-            Request::METHOD_DELETE,
-            '/v1/api/events/event-raclette-id/unjoin',
+        $this->client->request(
+            Request::METHOD_POST,
+            sprintf('/api/v2/meets/%s/users/%s/join', $meetId->toRfc4122(), $guestId->toRfc4122()),
             [
-                'body' => json_encode($body),
                 'headers' => [
-                    'Authorization' => 'bearer '.$token,
+                    'Authorization' => 'bearer '.$jwtToken,
                 ],
             ],
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+    }
+
+    private function createMeet(User $user): Meet
+    {
+        $chat = $this->createChat();
+        /** @var string $category */
+        $category = $this->faker->randomElement(['restaurant', 'jeux']);
+        $meet = new Meet();
+        $meet
+            ->setTitle($this->faker->sentence(8))
+            ->setLocation($this->faker->address())
+            ->setDate(new \DateTime())
+            ->setCategory($category)
+            ->setMaxGuests(10)
+            ->setChat($chat)
+            ->setHost($user);
+        $this->entityManager->persist($meet);
+        $this->entityManager->flush();
+
+        return $meet;
+    }
+
+    public function createUser(): User
+    {
+        /** @var string $sex */
+        $sex = $this->faker->randomElement(['male', 'female']);
+        $user = new User();
+        $user
+            ->setEmail($this->faker->email())
+            ->setPassword($this->faker->password())
+            ->setSex($sex)
+            ->setFirstname($this->faker->firstName())
+            ->setLastname($this->faker->lastName())
+            ->setBirthday(new \DateTime())
+            ->setCity($this->faker->city());
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $user;
+    }
+
+    private function createChat(): Chat
+    {
+        $chat = new Chat();
+        $this->entityManager->persist($chat);
+        $this->entityManager->flush();
+
+        return $chat;
     }
 }

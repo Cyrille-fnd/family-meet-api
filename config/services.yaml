@@ -22,16 +22,9 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-    App\Service\ElasticSearch\ElasticSearchLocalClientGenerator:
-        arguments:
-            $elasticHost: '%env(ELASTICSEARCH_HOST)%'
-            $elasticPort: '%env(ELASTICSEARCH_PORT)%'
-
-    App\Service\ElasticSearch\EventRepository:
-        arguments:
-            $nbResultsPerPage: '%app.event_nb_results_per_page%'
+    App\Repository\MeetRepository:
+       arguments:
+           $nbResultsPerPage: '%app.event_nb_results_per_page%'
 
     Symfony\Component\Dotenv\Command\DotenvDumpCommand: ~
 

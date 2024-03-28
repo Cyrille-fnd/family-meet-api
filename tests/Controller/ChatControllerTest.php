@@ -2,40 +2,39 @@
 
 namespace App\Tests\Controller;
 
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
-use App\Entity\User;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use App\Entity\Chat;
+use App\Tests\BaseTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Uid\Uuid;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
-class ChatControllerTest extends ApiTestCase
+class ChatControllerTest extends BaseTestCase
 {
-    private JWTTokenManagerInterface $jwtTokenManager;
-
-    protected function setUp(): void
+    public function __construct(string $name)
     {
-        /** @var JWTTokenManagerInterface $jwtTokenManager */
-        $jwtTokenManager = static::getContainer()->get('lexik_jwt_authentication.jwt_manager');
-        $this->jwtTokenManager = $jwtTokenManager;
+        parent::__construct($name);
     }
 
-    public function testPost(): void
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function testPostReturns201(): void
     {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
+        $jwtToken = $this->authenticate();
 
-        $token = $this->jwtTokenManager->create($user);
-
-        $client = static::createClient();
-
-        $response = $client->request(
+        $response = $this->client->request(
             Request::METHOD_POST,
-            '/v1/api/chats',
+            '/api/v2/chats',
             [
                 'headers' => [
-                    'Authorization' => 'bearer '.$token,
+                    'Authorization' => 'bearer '.$jwtToken,
                 ],
             ],
         );
@@ -45,28 +44,21 @@ class ChatControllerTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
         $this->assertArrayHasKey('id', $content);
-        $this->assertArrayHasKey('chatters', $content);
-        $this->assertArrayHasKey('messages', $content);
-        $this->assertArrayHasKey('createdAt', $content);
     }
 
-    public function testGetChatNotFound(): void
+    /**
+     * @throws TransportExceptionInterface
+     */
+    public function testGetReturns404(): void
     {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
+        $jwtToken = $this->authenticate();
 
-        $token = $this->jwtTokenManager->create($user);
-
-        $client = static::createClient();
-
-        $client->request(
+        $this->client->request(
             Request::METHOD_GET,
             '/v1/api/chats/chat-random-id',
             [
                 'headers' => [
-                    'Authorization' => 'bearer '.$token,
+                    'Authorization' => 'bearer '.$jwtToken,
                 ],
             ],
         );
@@ -74,23 +66,25 @@ class ChatControllerTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
-    public function testGetSuccessful(): void
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function testGetReturns200(): void
     {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
+        $jwtToken = $this->authenticate();
 
-        $token = $this->jwtTokenManager->create($user);
+        /** @var Uuid $chatId */
+        $chatId = $this->createChat()->getId();
 
-        $client = static::createClient();
-
-        $response = $client->request(
+        $response = $this->client->request(
             Request::METHOD_GET,
-            '/v1/api/chats/chat-raclette-id',
+            '/api/v2/chats/'.$chatId->toRfc4122(),
             [
                 'headers' => [
-                    'Authorization' => 'bearer '.$token,
+                    'Authorization' => 'bearer '.$jwtToken,
                 ],
             ],
         );
@@ -103,5 +97,14 @@ class ChatControllerTest extends ApiTestCase
         $this->assertArrayHasKey('chatters', $content);
         $this->assertArrayHasKey('messages', $content);
         $this->assertArrayHasKey('createdAt', $content);
+    }
+
+    private function createChat(): Chat
+    {
+        $chat = new Chat();
+        $this->entityManager->persist($chat);
+        $this->entityManager->flush();
+
+        return $chat;
     }
 }

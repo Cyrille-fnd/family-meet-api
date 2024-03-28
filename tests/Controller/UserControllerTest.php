@@ -2,29 +2,33 @@
 
 namespace App\Tests\Controller;
 
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\User;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use App\Tests\BaseTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Uid\Uuid;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
-class UserControllerTest extends ApiTestCase
+class UserControllerTest extends BaseTestCase
 {
-    private JWTTokenManagerInterface $jwtTokenManager;
-
-    protected function setUp(): void
+    public function __construct(string $name)
     {
-        /** @var JWTTokenManagerInterface $jwtTokenManager */
-        $jwtTokenManager = static::getContainer()->get('lexik_jwt_authentication.jwt_manager');
-        $this->jwtTokenManager = $jwtTokenManager;
+        parent::__construct($name);
     }
 
-    public function testPostSuccessful(): void
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function testPostReturns201(): void
     {
-        $client = static::createClient();
-
         $body = [
-            'email' => 'toto@gmail.com',
+            'email' => $this->faker->email(),
             'sex' => 'male',
             'password' => 'password',
             'firstname' => 'Daniel',
@@ -35,9 +39,9 @@ class UserControllerTest extends ApiTestCase
             'pictureUrl' => null,
         ];
 
-        $response = $client->request(
+        $response = $this->client->request(
             Request::METHOD_POST,
-            '/v1/api/register',
+            '/api/v2/users',
             [
                 'body' => json_encode($body),
             ]
@@ -47,20 +51,21 @@ class UserControllerTest extends ApiTestCase
         $content = json_decode($response->getContent(), true);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
-
         $this->assertArrayHasKey('id', $content);
-        $this->assertArrayHasKey('token', $content);
-        $this->assertArrayHasKey('createdAt', $content);
-        unset($body['password']);
-        $this->assertArraySubset($body, $content);
     }
 
-    public function testPostFailUserAlreadyExist(): void
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function testPostReturns400(): void
     {
-        $client = static::createClient();
+        $user = $this->createUser();
 
         $body = [
-            'email' => 'ferandc@gmail.com',
+            'email' => $user->getEmail(),
             'sex' => 'male',
             'password' => 'password',
             'firstname' => 'Cyrille',
@@ -71,45 +76,33 @@ class UserControllerTest extends ApiTestCase
             'pictureUrl' => null,
         ];
 
-        $client->request(
+        $response = $this->client->request(
             Request::METHOD_POST,
-            '/v1/api/register',
+            '/api/v2/users',
             [
                 'body' => json_encode($body),
             ]
         );
 
+        /** @var array<string,string> $content */
+        $content = json_decode($response->getContent(false), true);
+
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertJsonContains(['code' => 'cannot_create_user', 'message' => 'cannot create user']);
+        $this->assertEquals('user_already_exists', $content['code']);
     }
 
-    public function testGetUnauthorized(): void
+    public function testGetReturns400(): void
     {
-        $client = static::createClient();
+        $jwtToken = $this->authenticate();
 
-        $client->request(Request::METHOD_GET, '/v1/api/users/user-cyrille-id');
+        $unknownUserId = Uuid::v4();
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
-        $this->assertJsonContains(['code' => Response::HTTP_UNAUTHORIZED, 'message' => 'JWT Token not found']);
-    }
-
-    public function testGetNotFound(): void
-    {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
-
-        $token = $this->jwtTokenManager->create($user);
-
-        $client = static::createClient();
-
-        $client->request(
+        $this->client->request(
             Request::METHOD_GET,
-            '/v1/api/users/user-gaston-id',
+            sprintf('/api/v2/users/%s', $unknownUserId->toRfc4122()),
             [
                 'headers' => [
-                    'Authorization' => 'bearer '.$token,
+                    'Authorization' => 'bearer '.$jwtToken,
                 ],
             ],
         );
@@ -117,23 +110,25 @@ class UserControllerTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
-    public function testGetSuccessful(): void
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function testGetReturns200(): void
     {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
+        $jwtToken = $this->authenticate();
 
-        $token = $this->jwtTokenManager->create($user);
+        /** @var Uuid $userId */
+        $userId = $this->createUser()->getId();
 
-        $client = static::createClient();
-
-        $response = $client->request(
+        $response = $this->client->request(
             Request::METHOD_GET,
-            '/v1/api/users/user-cyrille-id',
+            sprintf('/api/v2/users/%s', $userId->toRfc4122()),
             [
                 'headers' => [
-                    'Authorization' => 'bearer '.$token,
+                    'Authorization' => 'bearer '.$jwtToken,
                 ],
             ],
         );
@@ -143,21 +138,18 @@ class UserControllerTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
         $this->assertArraySubset([
-            'id' => 'user-cyrille-id',
-            'email' => 'ferandc@gmail.com',
-            'firstname' => 'Cyrille',
-            'lastname' => 'Ferand',
+            'id' => $userId->toRfc4122(),
         ], $content);
     }
 
-    public function testPutNotFound(): void
+    /**
+     * @throws TransportExceptionInterface
+     */
+    public function testPutReturn404(): void
     {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
+        $token = $this->authenticate();
 
-        $token = $this->jwtTokenManager->create($user);
+        $unknownUserId = Uuid::v4();
 
         $body = [
             'sex' => 'male',
@@ -169,11 +161,9 @@ class UserControllerTest extends ApiTestCase
             'pictureUrl' => null,
         ];
 
-        $client = static::createClient();
-
-        $client->request(
+        $this->client->request(
             Request::METHOD_PUT,
-            '/v1/api/users/user-gaston-id',
+            sprintf('/api/v2/users/%s', $unknownUserId->toRfc4122()),
             [
                 'headers' => [
                     'Authorization' => 'bearer '.$token,
@@ -185,16 +175,16 @@ class UserControllerTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
-    public function testPutSuccessful(): void
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws \Exception
+     */
+    public function testPutReturns200(): void
     {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
-
-        $token = $this->jwtTokenManager->create($user);
-
-        $client = static::createClient();
+        $jwtToken = $this->authenticate();
 
         $body = [
             'sex' => 'male',
@@ -206,12 +196,15 @@ class UserControllerTest extends ApiTestCase
             'pictureUrl' => null,
         ];
 
-        $response = $client->request(
+        /** @var Uuid $userId */
+        $userId = $this->createUser()->getId();
+
+        $response = $this->client->request(
             Request::METHOD_PUT,
-            '/v1/api/users/user-cyrille-id',
+            sprintf('/api/v2/users/%s', $userId),
             [
                 'headers' => [
-                    'Authorization' => 'bearer '.$token,
+                    'Authorization' => 'bearer '.$jwtToken,
                 ],
                 'body' => json_encode($body),
             ],
@@ -220,33 +213,25 @@ class UserControllerTest extends ApiTestCase
         /** @var array<string, string> $content */
         $content = json_decode($response->getContent(), true);
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
-
         $this->assertArraySubset([
-            'id' => 'user-cyrille-id',
-            'bio' => 'bio modifiée',
-            'email' => 'ferandc@gmail.com',
-            'firstname' => 'Cyrille Gaston',
-            'lastname' => 'Ferand',
+            'id' => $userId->toRfc4122(),
         ], $content);
     }
 
-    public function testDeleteNotFound(): void
+    /**
+     * @throws TransportExceptionInterface
+     */
+    public function testDeleteReturns404(): void
     {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
+        $jwtToken = $this->authenticate();
+        $userId = Uuid::v4();
 
-        $token = $this->jwtTokenManager->create($user);
-
-        $client = static::createClient();
-
-        $client->request(
+        $this->client->request(
             Request::METHOD_DELETE,
-            '/v1/api/users/user-gaston-id',
+            sprintf('/api/v2/users/%s', $userId),
             [
                 'headers' => [
-                    'Authorization' => 'bearer '.$token,
+                    'Authorization' => 'bearer '.$jwtToken,
                 ],
             ],
         );
@@ -254,27 +239,47 @@ class UserControllerTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
-    public function testDeleteSuccessful(): void
+    /**
+     * @throws TransportExceptionInterface
+     */
+    public function testDeleteReturn204(): void
     {
-        $user = new User();
-        $user
-            ->setId('user-cyrille-id')
-            ->setEmail('ferandc@gmail.com');
+        $jwtToken = $this->authenticate();
 
-        $token = $this->jwtTokenManager->create($user);
+        /** @var Uuid $userId */
+        $userId = $this->createUser()->getId();
 
         $client = static::createClient();
 
         $client->request(
             Request::METHOD_DELETE,
-            '/v1/api/users/user-cyrille-id',
+            sprintf('/api/v2/users/%s', $userId),
             [
                 'headers' => [
-                    'Authorization' => 'bearer '.$token,
+                    'Authorization' => 'bearer '.$jwtToken,
                 ],
             ],
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+    }
+
+    public function createUser(): User
+    {
+        /** @var string $sex */
+        $sex = $this->faker->randomElement(['male', 'female']);
+        $user = new User();
+        $user
+            ->setEmail($this->faker->email())
+            ->setPassword($this->faker->password())
+            ->setSex($sex)
+            ->setFirstname($this->faker->firstName())
+            ->setLastname($this->faker->lastName())
+            ->setBirthday(new \DateTime())
+            ->setCity($this->faker->city());
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $user;
     }
 }

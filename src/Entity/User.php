@@ -7,15 +7,19 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSerializable
 {
     #[ORM\Id]
-    #[ORM\Column]
-    private string $id;
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    private ?Uuid $id;
 
     #[ORM\Column(length: 180, unique: true)]
     private string $email;
@@ -62,17 +66,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
     #[ORM\ManyToMany(targetEntity: Chat::class, mappedBy: 'chatters')]
     private Collection $chats;
 
+    /**
+     * @var Collection<int, Meet>
+     */
+    #[ORM\OneToMany(mappedBy: 'host', targetEntity: Meet::class)]
+    private Collection $hostedMeets;
+
+    /**
+     * @var Collection<int, Meet>
+     */
+    #[ORM\ManyToMany(targetEntity: Meet::class, mappedBy: 'guests')]
+    private Collection $meets;
+
     public function __construct()
     {
         $this->chats = new ArrayCollection();
+        $this->createdAt = new \DateTime();
+        $this->roles[] = 'ROLE_USER';
+        $this->hostedMeets = new ArrayCollection();
+        $this->meets = new ArrayCollection();
     }
 
-    public function getId(): string
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
 
-    public function setId(string $id): static
+    public function setId(Uuid $id): static
     {
         $this->id = $id;
 
@@ -276,12 +296,73 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
     }
 
     /**
+     * @return Collection<int, Meet>
+     */
+    public function getHostedMeets(): Collection
+    {
+        return $this->hostedMeets;
+    }
+
+    public function addHostedMeet(Meet $hostedMeet): static
+    {
+        if (!$this->hostedMeets->contains($hostedMeet)) {
+            $this->hostedMeets->add($hostedMeet);
+            $hostedMeet->setHost($this);
+        }
+
+        return $this;
+    }
+
+    //    public function removeHostedMeet(Meet $hostedMeet): static
+    //    {
+    //        if ($this->hostedMeets->removeElement($hostedMeet)) {
+    //            // set the owning side to null (unless already changed)
+    //            //if ($hostedMeet->getHost() === $this) {
+    //                //TODO find a solution here !!!!
+    //                //$hostedMeet->setHost(null);
+    //            //}
+    //        }
+    //
+    //        return $this;
+    //    }
+
+    /**
+     * @return Collection<int, Meet>
+     */
+    public function getMeets(): Collection
+    {
+        return $this->meets;
+    }
+
+    public function addMeet(Meet $meet): static
+    {
+        if (!$this->meets->contains($meet)) {
+            $this->meets->add($meet);
+            $meet->addGuest($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMeet(Meet $meet): static
+    {
+        if ($this->meets->removeElement($meet)) {
+            $meet->removeGuest($this);
+        }
+
+        return $this;
+    }
+
+    /**
      * @return array<string, string|null>
      */
     public function jsonSerialize(): array
     {
+        /** @var Uuid $id */
+        $id = $this->getId();
+
         return [
-            'id' => $this->getId(),
+            'id' => $id->toRfc4122(),
             'email' => $this->getEmail(),
             'sex' => $this->getSex(),
             'firstname' => $this->getFirstname(),

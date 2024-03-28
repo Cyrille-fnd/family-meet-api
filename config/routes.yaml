@@ -4,5 +4,5 @@ controllers:
         namespace: App\Controller
     type: attribute
 
-v1_api_login_check:
-    path: /v1/api/login_check
+api_v2_login_check:
+    path: /api/v2/login
