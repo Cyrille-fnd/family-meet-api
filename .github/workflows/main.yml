@@ -49,26 +49,3 @@ jobs:
 
       - name: "Quality"
         run: "make quality"
-  deploy:
-    needs: run-tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v1
-
-      - name: Generate deployment package
-        run: zip familymeetapi.zip -r ./
-
-      - name: Deploy to EB
-        uses: einaregilsson/beanstalk-deploy@v13
-        env:
-          VERSION_LABEL: monapplication-api-${{ github.run_id }}
-        with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: family-meet-api
-          environment_name: family-meet-api-env
-          version_label: ${{ env.VERSION_LABEL }}
-          region: eu-west-3
-          deployment_package: familymeetapi.zip
-          use_existing_version_if_available: true
