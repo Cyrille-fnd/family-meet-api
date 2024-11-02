@@ -41,7 +41,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     //    /**
-    //     * @return User[] Returns an array of User objects
+    //     * @return Meet[] Returns an array of Meet objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -55,7 +55,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?User
+    //    public function findOneBySomeField($value): ?Meet
     //    {
     //        return $this->createQueryBuilder('u')
     //            ->andWhere('u.exampleField = :val')

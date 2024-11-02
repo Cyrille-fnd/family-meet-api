@@ -21,7 +21,7 @@ class MessageController extends AbstractController
         string $chatId,
         string $userId,
         EntityManagerInterface $entityManager,
-        Request $request
+        Request $request,
     ): JsonResponse {
         $chat = $entityManager->getRepository(Chat::class)->find($chatId);
 

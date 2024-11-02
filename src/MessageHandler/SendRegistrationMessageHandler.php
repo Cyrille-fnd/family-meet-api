@@ -20,14 +20,14 @@ class SendRegistrationMessageHandler
 
     public function __construct(
         MailerInterface $mailer,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
     ) {
         $this->mailer = $mailer;
         $this->em = $em;
     }
 
     public function __invoke(
-        RegisteredUserEvent $event
+        RegisteredUserEvent $event,
     ): void {
         /** @var User|null */
         $user = $this->em->getRepository(User::class)->find($event->getUserId());

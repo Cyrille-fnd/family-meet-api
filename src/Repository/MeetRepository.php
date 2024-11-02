@@ -22,7 +22,7 @@ class MeetRepository extends ServiceEntityRepository
 
     public function __construct(
         ManagerRegistry $registry,
-        int $nbResultsPerPage
+        int $nbResultsPerPage,
     ) {
         $this->nbResultsPerPage = $nbResultsPerPage;
         parent::__construct($registry, Meet::class);

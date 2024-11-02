@@ -37,3 +37,11 @@ services:
               use_path_style_endpoint: true
               signature_version: 'v4'
               credentials: {'key' : '%env(AWS_ACCESS_KEY_ID)%', 'secret' : '%env(AWS_SECRET_ACCESS_KEY)%'}
+
+    App\Meet\Presentation\Http\Rest\Controller\:
+      resource: '../src/Meet/Presentation/Http/Rest/Controller/'
+      tags: ['controller.service_arguments']
+
+    _instanceof:
+      App\Meet\Application\CommandHandlerInterface:
+        tags: [{name: messenger.message_handler, bus: command.bus}]

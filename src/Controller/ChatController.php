@@ -15,7 +15,7 @@ class ChatController extends AbstractController
 {
     #[Route('/api/v2/chats', name: 'api_v2_chats_post', methods: ['POST'])]
     public function post(
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
     ): JsonResponse {
         $chat = new Chat();
 
@@ -27,7 +27,7 @@ class ChatController extends AbstractController
 
     #[Route('/api/v2/chats/{id}', name: 'api_v2_chats_get', methods: ['GET'])]
     public function get(
-        Chat $chat
+        Chat $chat,
     ): JsonResponse {
         return new JsonResponse($chat->jsonSerialize());
     }

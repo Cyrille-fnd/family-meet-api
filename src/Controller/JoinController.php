@@ -19,7 +19,7 @@ final class JoinController extends AbstractController
     public function join(
         string $meetId,
         string $userId,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
     ): JsonResponse {
         $meet = $entityManager->getRepository(Meet::class)->find($meetId);
 
@@ -56,7 +56,7 @@ final class JoinController extends AbstractController
     public function unjoin(
         string $meetId,
         string $userId,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
     ): JsonResponse {
         $meet = $entityManager->getRepository(Meet::class)->find($meetId);
 

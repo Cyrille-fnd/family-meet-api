@@ -21,7 +21,7 @@ class AppFixtures extends Fixture
     private Generator $faker;
 
     public function __construct(
-        UserPasswordHasherInterface $userPasswordHasher
+        UserPasswordHasherInterface $userPasswordHasher,
     ) {
         $this->userPasswordHasher = $userPasswordHasher;
         $this->faker = Factory::create();

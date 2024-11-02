@@ -47,6 +47,8 @@ services:
       MYSQL_DATABASE: familymeet
     volumes:
       - db_data:/var/lib/mysql
+    ports:
+      - '3306:3306'
 
   adminer:
     image: adminer

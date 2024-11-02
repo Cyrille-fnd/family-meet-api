@@ -41,6 +41,9 @@ php-cs-fixer-fix:
 phpunit:
 	$(EXEC_WWW) bin/phpunit tests/
 
+cc:
+	$(EXEC_WWW) bin/console cache:clear
+
 quality: composer-validate php-cs-fixer-fix phpstan phpunit
 
 fixtures-test:

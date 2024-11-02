@@ -27,7 +27,7 @@ final class UserController extends AbstractController
         EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $passwordHasher,
         JWTTokenManagerInterface $JWTTokenManager,
-        MessageBusInterface $bus
+        MessageBusInterface $bus,
     ): JsonResponse {
         $content = $request->getContent();
 
@@ -52,8 +52,8 @@ final class UserController extends AbstractController
 
         if (null !== $user) {
             return new JsonResponse([
-                    'code' => 'user_already_exists',
-                    'message' => 'user already exists',
+                'code' => 'user_already_exists',
+                'message' => 'user already exists',
             ], Response::HTTP_BAD_REQUEST);
         }
 
@@ -89,7 +89,7 @@ final class UserController extends AbstractController
     #[Route('/api/v2/users', name: 'api_v2_users_get', methods: ['GET'])]
     public function get(
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
     ): JsonResponse {
         if ($request->query->get('current')) {
             /** @var User|null $user */
@@ -127,7 +127,7 @@ final class UserController extends AbstractController
 
     #[Route('/api/v2/users/{id}', name: 'api_v2_users_get_by_id', methods: ['GET'])]
     public function getById(
-        User $user
+        User $user,
     ): JsonResponse {
         return new JsonResponse(
             $user->jsonSerialize(),
@@ -141,7 +141,7 @@ final class UserController extends AbstractController
     public function put(
         User $user,
         EntityManagerInterface $entityManager,
-        Request $request
+        Request $request,
     ): JsonResponse {
         $content = $request->getContent();
 
@@ -177,7 +177,7 @@ final class UserController extends AbstractController
         User $user,
         EntityManagerInterface $entityManager,
         Request $request,
-        S3Client $client
+        S3Client $client,
     ): JsonResponse {
         /** @var File $file */
         $file = $request->files->get('profilePicture');
@@ -214,7 +214,7 @@ final class UserController extends AbstractController
     #[Route('/api/v2/users/{id}', name: 'api_v2_users_delete', methods: ['DELETE'])]
     public function delete(
         User $user,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
     ): JsonResponse {
         $entityManager->remove($user);
         $entityManager->flush();

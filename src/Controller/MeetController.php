@@ -21,7 +21,7 @@ final class MeetController extends AbstractController
     public function post(
         string $userId,
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
     ): JsonResponse {
         $host = $entityManager->getRepository(User::class)->find($userId);
 
@@ -73,7 +73,7 @@ final class MeetController extends AbstractController
     #[Route('/api/v2/meets', name: 'api_v2_meets_get', methods: ['GET'])]
     public function get(
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
     ): JsonResponse {
         $hostId = $request->query->get('hostId');
         $guestId = $request->query->get('guestId');
@@ -134,7 +134,7 @@ final class MeetController extends AbstractController
     #[Route('/api/v2/meets/{id}', name: 'api_v2_meets_get_by_id', methods: ['GET'])]
     public function getById(
         string $id,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
     ): JsonResponse {
         $meet = $entityManager->getRepository(Meet::class)->find($id);
 
@@ -154,7 +154,7 @@ final class MeetController extends AbstractController
     public function put(
         string $id,
         EntityManagerInterface $entityManager,
-        Request $request
+        Request $request,
     ): JsonResponse {
         $meet = $entityManager->getRepository(Meet::class)->find($id);
 
@@ -198,7 +198,7 @@ final class MeetController extends AbstractController
     #[Route('/api/v2/meets/{id}', name: 'api_v2_meets_delete', methods: ['DELETE'])]
     public function delete(
         string $id,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
     ): JsonResponse {
         $meet = $entityManager->getRepository(Meet::class)->find($id);
 

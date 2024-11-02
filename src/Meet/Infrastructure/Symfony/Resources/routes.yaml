@@ -1,0 +1,5 @@
+signup:
+  path: /api/v2/users
+  methods: 'POST'
+  format: 'json'
+  controller: App\Meet\Presentation\Http\Rest\Controller\SignupController
