@@ -77,7 +77,6 @@ final class MeetController extends AbstractController
     ): JsonResponse {
         $hostId = $request->query->get('hostId');
         $guestId = $request->query->get('guestId');
-        /** @var int $page */
         $page = $request->query->get('page') ?? 1;
 
         if (null === $hostId && null === $guestId) {
@@ -86,7 +85,7 @@ final class MeetController extends AbstractController
 
             $meets = array_map(function (Meet $meet) {
                 return $meet->jsonSerialize();
-            }, $repository->findByPage($page));
+            }, $repository->findByPage((int) $page));
 
             return new JsonResponse($meets);
         }
