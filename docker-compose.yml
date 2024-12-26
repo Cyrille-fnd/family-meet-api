@@ -50,14 +50,6 @@ services:
     ports:
       - '3306:3306'
 
-  adminer:
-    image: adminer
-    depends_on:
-      - db
-    restart: always
-    ports:
-      - '11080:8080'
-
   rabbitmq:
     image: rabbitmq:3.9.29-management-alpine
     ports:
