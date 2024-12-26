@@ -23,6 +23,8 @@ restart: stop start
 
 reload: down build start
 
+load: build start
+
 ps:
 	docker compose ps
 

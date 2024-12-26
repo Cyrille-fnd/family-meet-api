@@ -10,6 +10,7 @@ use App\Meet\Application\Signup\SignupCommand;
 use App\Meet\Domain\ValueObject\SignupInformation;
 use App\Meet\Domain\ValueObject\UserId;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 
 final readonly class SignupController
@@ -26,8 +27,8 @@ final readonly class SignupController
             email: $signupDto->email,
             password: $signupDto->password,
             sex: $signupDto->sex,
-            firstName: $signupDto->firstName,
-            lastName: $signupDto->lastName,
+            firstName: $signupDto->firstname,
+            lastName: $signupDto->lastname,
             bio: $signupDto->bio,
             birthday: $signupDto->birthday,
             city: $signupDto->city,
@@ -36,6 +37,6 @@ final readonly class SignupController
 
         $this->commandBus->dispatch(new SignupCommand(signupInformation: $signupInformation));
 
-        return new JsonResponse(['id' => $signupInformation->id->value()]);
+        return new JsonResponse(['id' => $signupInformation->id->value()], Response::HTTP_CREATED);
     }
 }
