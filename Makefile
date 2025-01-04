@@ -46,7 +46,7 @@ phpunit:
 cc:
 	$(EXEC_WWW) bin/console cache:clear
 
-quality: composer-validate php-cs-fixer-fix phpstan phpunit
+quality: composer-validate phpstan phpunit
 
 fixtures-test:
 	$(EXEC_WWW) bin/console doctrine:fixtures:load -q
