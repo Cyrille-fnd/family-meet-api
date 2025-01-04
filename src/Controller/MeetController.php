@@ -47,7 +47,7 @@ final class MeetController extends AbstractController
         $date = $payload->get('date');
         /** @var string $category */
         $category = $payload->get('category');
-        /** @var int $maxGuests */
+        /** @var string $maxGuests */
         $maxGuests = $payload->get('participantMax');
 
         $chat = new Chat();
@@ -60,7 +60,7 @@ final class MeetController extends AbstractController
             ->setLocation($location)
             ->setDate(new \DateTime($date))
             ->setCategory($category)
-            ->setMaxGuests($maxGuests)
+            ->setMaxGuests((int) $maxGuests)
             ->setHost($host)
             ->setChat($chat);
 
