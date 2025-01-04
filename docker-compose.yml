@@ -97,14 +97,6 @@ services:
     networks:
       - familymeet.com
 
-  rabbitmq:
-    image: rabbitmq:3.9.29-management-alpine
-    ports:
-      - '5672:5672'
-      - '15672:15672'
-    networks:
-      - familymeet.com
-
   mailhog:
     image: mailhog/mailhog
     logging:

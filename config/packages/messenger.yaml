@@ -19,9 +19,9 @@ framework:
 
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
-            amqp: 
+            async:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
-                serializer: App\Messenger\ExternalJsonMessageSerializer
+                #serializer: App\Messenger\ExternalJsonMessageSerializer
             # failed: 'doctrine://default?queue_name=failed'
             # sync: 'sync://'
             #mailer:
@@ -29,7 +29,7 @@ framework:
 
         routing:
             # Route your messages to the transports
-            'App\Message\RegisteredUserEvent': amqp
+            'App\Message\RegisteredUserEvent': async
 
 # when@test:
 #    framework:

@@ -20,7 +20,7 @@ FROM dunglas/frankenphp AS runner
 COPY --from=builder /usr/local/bin/frankenphp /usr/local/bin/frankenphp
 
 RUN chmod +x /usr/local/bin/frankenphp; \
-    install-php-extensions mysqli mysqlnd pdo pdo_mysql amqp zip
+    install-php-extensions mysqli mysqlnd pdo pdo_mysql zip
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
