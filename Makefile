@@ -1,11 +1,11 @@
 ifneq ("$(wildcard /.dockerenv)","") # if in docker
 	EXEC_WWW=
 else
-	EXEC_WWW=docker compose -p family-meet-api exec php-fpm
+	EXEC_WWW=docker compose -p family-meet-api exec frankenphp
 endif
 
 BIN_CONSOLE=bin/console --no-debug
-VENDOR_CONTAINER=$(shell docker compose ps -q php-fpm)
+VENDOR_CONTAINER=$(shell docker compose ps -q frankenphp)
 
 start:
 	docker compose up -d
