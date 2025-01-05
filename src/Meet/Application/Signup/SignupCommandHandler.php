@@ -6,6 +6,8 @@ namespace App\Meet\Application\Signup;
 
 use App\Meet\Anticorruption\Domain\Repository\UserRepositoryInterface;
 use App\Meet\Application\CommandHandlerInterface;
+use App\Meet\Application\EventBusInterface;
+use App\Meet\Domain\Event\UserRegisteredEvent;
 use App\Meet\Domain\Exception\UserAlreadyExistsException;
 use App\Meet\Domain\Service\UserCreatorInterface;
 
@@ -14,6 +16,7 @@ final readonly class SignupCommandHandler implements CommandHandlerInterface
     public function __construct(
         private UserRepositoryInterface $userRepository,
         private UserCreatorInterface $userCreator,
+        private EventBusInterface $bus,
     ) {
     }
 
@@ -28,5 +31,7 @@ final readonly class SignupCommandHandler implements CommandHandlerInterface
         $user = $this->userCreator->create($command->signupInformation);
 
         $this->userRepository->save($user);
+
+        $this->bus->dispatch(event: new UserRegisteredEvent($user->id->value()));
     }
 }

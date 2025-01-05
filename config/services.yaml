@@ -45,3 +45,6 @@ services:
     _instanceof:
       App\Meet\Application\CommandHandlerInterface:
         tags: [{name: messenger.message_handler, bus: command.bus}]
+
+      App\Meet\Application\EventHandlerInterface:
+        tags: [{name: messenger.message_handler, bus: event.bus}]
