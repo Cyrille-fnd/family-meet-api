@@ -81,5 +81,5 @@ services:
 
 volumes:
   db_data: {}
-  caddy_data:
-  caddy_config:
+  caddy_data: {}
+  caddy_config: {}

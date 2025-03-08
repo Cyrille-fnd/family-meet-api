@@ -259,7 +259,6 @@ class Meet
      */
     public function jsonSerialize(): array
     {
-        /** @var Uuid $meetId */
         $meetId = $this->getId();
 
         $guests = array_map(function (User $guest) {
@@ -267,7 +266,7 @@ class Meet
         }, $this->getGuests()->toArray());
 
         return [
-            'id' => $meetId->toRfc4122(),
+            'id' => $meetId,
             'title' => $this->getTitle(),
             'description' => $this->getDescription(),
             'location' => $this->getLocation(),
