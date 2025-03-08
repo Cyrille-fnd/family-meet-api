@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Chat;
 use App\Entity\Message;
 use App\Entity\User;
+use App\Meet\Domain\ValueObject\MessageId;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -57,7 +58,7 @@ class MessageController extends AbstractController
          */
         $payload = json_decode($content, true);
 
-        $message = new Message();
+        $message = new Message(MessageId::create()->value());
 
         $message
             ->setAuthor($user)

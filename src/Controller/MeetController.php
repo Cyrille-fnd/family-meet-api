@@ -7,6 +7,8 @@ namespace App\Controller;
 use App\Entity\Chat;
 use App\Entity\Meet;
 use App\Entity\User;
+use App\Meet\Domain\ValueObject\ChatId;
+use App\Meet\Domain\ValueObject\Uuid;
 use App\Repository\MeetRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -50,19 +52,20 @@ final class MeetController extends AbstractController
         /** @var string $maxGuests */
         $maxGuests = $payload->get('participantMax');
 
-        $chat = new Chat();
+        $chat = Chat::create(ChatId::create()->value());
         $chat->addChatter($host);
 
-        $meet = new Meet();
-        $meet
-            ->setTitle($title)
-            ->setDescription($description)
-            ->setLocation($location)
-            ->setDate(new \DateTime($date))
-            ->setCategory($category)
-            ->setMaxGuests((int) $maxGuests)
-            ->setHost($host)
-            ->setChat($chat);
+        $meet = Meet::create(
+            id: Uuid::create()->value(),
+            title: $title,
+            description: $description,
+            location: $location,
+            date: new \DateTime($date),
+            category: $category,
+            maxGuests: (int) $maxGuests,
+            host: $host,
+            chat: $chat,
+        );
 
         $entityManager->persist($meet);
         $entityManager->flush();

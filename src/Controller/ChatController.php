@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Chat;
+use App\Meet\Domain\ValueObject\ChatId;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,7 +18,7 @@ class ChatController extends AbstractController
     public function post(
         EntityManagerInterface $entityManager,
     ): JsonResponse {
-        $chat = new Chat();
+        $chat = Chat::create(ChatId::create()->value());
 
         $entityManager->persist($chat);
         $entityManager->flush();

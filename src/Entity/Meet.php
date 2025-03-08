@@ -9,17 +9,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: MeetRepository::class)]
 class Meet
 {
     #[ORM\Id]
-    #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
-    private ?Uuid $id = null;
+    #[ORM\Column]
+    private string $id;
 
     #[ORM\Column(length: 255)]
     private string $title;
@@ -37,7 +34,7 @@ class Meet
     private \DateTimeInterface $updatedAt;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $description = null;
+    private ?string $description;
 
     #[ORM\ManyToOne(inversedBy: 'hostedMeets')]
     #[ORM\JoinColumn(nullable: false)]
@@ -59,14 +56,56 @@ class Meet
     #[ORM\JoinColumn(nullable: false)]
     private Chat $chat;
 
-    public function __construct()
-    {
+    public function __construct(
+        string $id,
+        string $title,
+        string $description,
+        string $location,
+        \DateTimeInterface $date,
+        string $category,
+        int $maxGuests,
+        User $host,
+        Chat $chat,
+    ) {
+        $this->id = $id;
+        $this->title = $title;
+        $this->description = $description;
+        $this->location = $location;
+        $this->date = $date;
+        $this->category = $category;
+        $this->maxGuests = $maxGuests;
+        $this->host = $host;
+        $this->chat = $chat;
         $this->guests = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTime();
     }
 
-    public function getId(): ?Uuid
+    public static function create(
+        string $id,
+        string $title,
+        string $description,
+        string $location,
+        \DateTimeInterface $date,
+        string $category,
+        int $maxGuests,
+        User $host,
+        Chat $chat,
+    ): self {
+        return new self(
+            id: $id,
+            title: $title,
+            description: $description,
+            location: $location,
+            date: $date,
+            category: $category,
+            maxGuests: $maxGuests,
+            host: $host,
+            chat: $chat,
+        );
+    }
+
+    public function getId(): string
     {
         return $this->id;
     }

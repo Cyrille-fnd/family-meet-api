@@ -9,19 +9,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSerializable
 {
     #[ORM\Id]
-    #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
-    private ?Uuid $id;
+    #[ORM\Column]
+    private string $id;
 
     #[ORM\Column(length: 180, unique: true)]
     private string $email;
@@ -48,7 +44,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
     private string $lastname;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $bio = null;
+    private ?string $bio;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private \DateTimeInterface $birthday;
@@ -57,7 +53,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
     private string $city;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $pictureUrl = null;
+    private ?string $pictureUrl;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private \DateTimeInterface $createdAt;
@@ -80,8 +76,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
     #[ORM\ManyToMany(targetEntity: Meet::class, mappedBy: 'guests')]
     private Collection $meets;
 
-    public function __construct()
-    {
+    public function __construct(
+        string $id,
+        string $email,
+        string $password,
+        string $sex,
+        string $firstname,
+        string $lastname,
+        string $bio,
+        \DateTime $birthday,
+        string $city,
+        ?string $pictureUrl,
+    ) {
+        $this->id = $id;
+        $this->email = $email;
+        $this->password = $password;
+        $this->sex = $sex;
+        $this->firstname = $firstname;
+        $this->lastname = $lastname;
+        $this->bio = $bio;
+        $this->birthday = $birthday;
+        $this->city = $city;
+        $this->pictureUrl = $pictureUrl;
         $this->chats = new ArrayCollection();
         $this->createdAt = new \DateTime();
         $this->roles[] = 'ROLE_USER';
@@ -89,12 +105,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
         $this->meets = new ArrayCollection();
     }
 
-    public function getId(): ?Uuid
+    public static function create(
+        string $id,
+        string $email,
+        string $password,
+        string $sex,
+        string $firstname,
+        string $lastname,
+        string $bio,
+        \DateTime $birthday,
+        string $city,
+        ?string $pictureUrl,
+    ): self {
+        return new self(
+            id: $id,
+            email: $email,
+            password: $password,
+            sex: $sex,
+            firstname: $firstname,
+            lastname: $lastname,
+            bio: $bio,
+            birthday: $birthday,
+            city: $city,
+            pictureUrl: $pictureUrl,
+        );
+    }
+
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function setId(Uuid $id): static
+    public function setId(string $id): static
     {
         $this->id = $id;
 
@@ -360,11 +402,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
      */
     public function jsonSerialize(): array
     {
-        /** @var Uuid $id */
-        $id = $this->getId();
-
         return [
-            'id' => $id->toRfc4122(),
+            'id' => $this->getId(),
             'email' => $this->getEmail(),
             'sex' => $this->getSex(),
             'firstname' => $this->getFirstname(),

@@ -8,6 +8,10 @@ use App\Entity\Chat;
 use App\Entity\Meet;
 use App\Entity\Message;
 use App\Entity\User;
+use App\Meet\Domain\ValueObject\ChatId;
+use App\Meet\Domain\ValueObject\MeetId;
+use App\Meet\Domain\ValueObject\MessageId;
+use App\Meet\Domain\ValueObject\UserId;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
@@ -29,179 +33,194 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $userCyrille = new User();
-        $userCyrille
-            ->setEmail('ferandc@gmail.com')
-            ->setPassword($this->userPasswordHasher->hashPassword($userCyrille, 'password'))
-            ->setRoles(['ROLE_USER'])
-            ->setSex('male')
-            ->setFirstname('Cyrille')
-            ->setLastname('Ferand')
-            ->setBio('Ici pour le fun !!')
-            ->setBirthday(new \DateTime('1989-02-06'))
-            ->setCity('Villejuif')
-            ->setPictureUrl('https://media.licdn.com/dms/image/C4D03AQFwsiU89fQuHg/profile-displayphoto-shrink_800_800/0/1610137674745?e=1707955200&v=beta&t=4-_8BYbCE6J4wIm8pdpPHJQN74thveWfwwMzQDqWIQc')
-            ->setCreatedAt(new \DateTime());
+        $userCyrille = User::create(
+            id: UserId::create()->value(),
+            email: 'ferandc@gmail.com',
+            password: 'zz',
+            sex: 'male',
+            firstname: 'Cyrille',
+            lastname: 'Ferand',
+            bio: 'Ici pour le fun !!',
+            birthday: new \DateTime('1989-02-06'),
+            city: 'Villejuif',
+            pictureUrl: 'https://media.licdn.com/dms/image/C4D03AQFwsiU89fQuHg/profile-displayphoto-shrink_800_800/0/1610137674745?e=1707955200&v=beta&t=4-_8BYbCE6J4wIm8pdpPHJQN74thveWfwwMzQDqWIQc'
+        );
+        $userCyrille->setPassword($this->userPasswordHasher->hashPassword($userCyrille, $userCyrille->getPassword()));
         $manager->persist($userCyrille);
 
-        $userMelinda = new User();
-        $userMelinda
-            ->setEmail('apatoutm@gmail.com')
-            ->setPassword($this->userPasswordHasher->hashPassword($userMelinda, 'password'))
-            ->setRoles(['ROLE_USER'])
-            ->setSex('female')
-            ->setFirstname('Melinda')
-            ->setLastname('Apatout')
-            ->setBio('Ici par curiosité')
-            ->setBirthday(new \DateTime('2000-08-20'))
-            ->setCity('Orly')
-            ->setPictureUrl(null)
-            ->setCreatedAt(new \DateTime());
+        $userMelinda = User::create(
+            id: UserId::create()->value(),
+            email: 'apatoutm@gmail.com',
+            password: 'zz',
+            sex: 'female',
+            firstname: 'Melinda',
+            lastname: 'Apatout',
+            bio: 'Ici par curiosité',
+            birthday: new \DateTime('2000-08-20'),
+            city: 'Orly',
+            pictureUrl: null
+        );
+        $userMelinda->setPassword($this->userPasswordHasher->hashPassword($userMelinda, $userMelinda->getPassword()));
         $manager->persist($userMelinda);
 
-        $userGeoffrey = new User();
-        $userGeoffrey
-            ->setEmail('apatoutg@gmail.com')
-            ->setPassword($this->userPasswordHasher->hashPassword($userGeoffrey, 'password'))
-            ->setRoles(['ROLE_USER'])
-            ->setSex('male')
-            ->setFirstname('Geoffrey')
-            ->setLastname('Apatout')
-            ->setBio(null)
-            ->setBirthday(new \DateTime('1986-07-02'))
-            ->setCity('Orly')
-            ->setPictureUrl(null)
-            ->setCreatedAt(new \DateTime());
+        $userGeoffrey = User::create(
+            id: UserId::create()->value(),
+            email: 'apatoutg@gmail.com',
+            password: 'zz',
+            sex: 'male',
+            firstname: 'Geoffrey',
+            lastname: 'Apatout',
+            bio: '',
+            birthday: new \DateTime('1986-07-02'),
+            city: 'Orly',
+            pictureUrl: null
+        );
+        $userGeoffrey->setPassword($this->userPasswordHasher->hashPassword($userGeoffrey, $userGeoffrey->getPassword()));
         $manager->persist($userGeoffrey);
 
-        $userDimitri = new User();
-        $userDimitri
-            ->setEmail('niced@gmail.com')
-            ->setPassword($this->userPasswordHasher->hashPassword($userDimitri, 'password'))
-            ->setRoles(['ROLE_USER'])
-            ->setSex('male')
-            ->setFirstname('Dimitri')
-            ->setLastname('Nice')
-            ->setBio(null)
-            ->setBirthday(new \DateTime('1987-11-26'))
-            ->setCity('Thiais')
-            ->setPictureUrl(null)
-            ->setCreatedAt(new \DateTime());
+        $userDimitri = User::create(
+            id: UserId::create()->value(),
+            email: 'niced@gmail.com',
+            password: 'zz',
+            sex: 'male',
+            firstname: 'Dimitri',
+            lastname: 'Nice',
+            bio: '',
+            birthday: new \DateTime('1987-11-26'),
+            city: 'Thiais',
+            pictureUrl: null
+        );
+        $userDimitri->setPassword($this->userPasswordHasher->hashPassword($userDimitri, $userDimitri->getPassword()));
         $manager->persist($userDimitri);
 
-        $userIngrid = new User();
-        $userIngrid
-            ->setEmail('apatouti@gmail.com')
-            ->setPassword($this->userPasswordHasher->hashPassword($userIngrid, 'password'))
-            ->setRoles(['ROLE_USER'])
-            ->setSex('female')
-            ->setFirstname('Ingrid')
-            ->setLastname('Apatout')
-            ->setBio(null)
-            ->setBirthday(new \DateTime('1977-06-06'))
-            ->setCity('Orly')
-            ->setPictureUrl(null)
-            ->setCreatedAt(new \DateTime());
+        $userIngrid = User::create(
+            id: UserId::create()->value(),
+            email: 'apatouti@gmail.com',
+            password: 'zz',
+            sex: 'female',
+            firstname: 'Ingrid',
+            lastname: 'Apatout',
+            bio: '',
+            birthday: new \DateTime('1977-06-06'),
+            city: 'Orly',
+            pictureUrl: null
+        );
+        $userIngrid->setPassword($this->userPasswordHasher->hashPassword($userIngrid, $userIngrid->getPassword()));
         $manager->persist($userIngrid);
 
-        $chatRaclette = new Chat();
+        $chatRaclette = Chat::create(ChatId::create()->value());
         $chatRaclette
             ->addChatter($userCyrille)
             ->addChatter($userMelinda)
             ->addChatter($userGeoffrey);
         $manager->persist($chatRaclette);
 
-        $chatFive = new Chat();
+        $chatFive = Chat::create(ChatId::create()->value());
         $chatFive->addChatter($userDimitri);
         $manager->persist($chatFive);
 
-        $chatJeux = new Chat();
+        $chatJeux = Chat::create(ChatId::create()->value());
         $chatJeux
             ->addChatter($userIngrid)
             ->addChatter($userMelinda);
         $manager->persist($chatJeux);
 
-        $chatClub = new Chat();
+        $chatClub = Chat::create(ChatId::create()->value());
         $chatClub
             ->addChatter($userMelinda);
         $manager->persist($chatClub);
 
-        $meetRaclette = new Meet();
+        $meetRaclette = Meet::create(
+            id: MeetId::create()->value(),
+            title: 'Raclette chez Cyrille',
+            description: $this->faker->sentence(50),
+            location: 'Chez Cyrille',
+            date: new \DateTime('2024-01-09 20:00:00'),
+            category: 'Restaurant',
+            maxGuests: 6,
+            host: $userCyrille,
+            chat: $chatRaclette,
+        );
+
         $meetRaclette
-            ->setTitle('Raclette chez Cyrille')
-            ->setDescription($this->faker->sentence(50))
-            ->setLocation('Raclette chez Cyrille')
-            ->setDate(new \DateTime('2024-01-09 20:00:00'))
-            ->setCategory('restaurant')
-            ->setMaxGuests(6)
-            ->setHost($userCyrille)
-            ->setChat($chatRaclette)
             ->addGuest($userMelinda)
             ->addGuest($userGeoffrey);
         $manager->persist($meetRaclette);
 
-        $meetFive = new Meet();
+        $meetFive = Meet::create(
+            id: MeetId::create()->value(),
+            title: 'Five à Créteil',
+            description: $this->faker->sentence(50),
+            location: '2 rue des poireaux, 94000 Créteil',
+            date: new \DateTime('2024-01-09 20:00:00'),
+            category: 'Sport',
+            maxGuests: 5,
+            host: $userDimitri,
+            chat: $chatFive,
+
+        );
+
         $meetFive
-            ->setTitle('Five à Créteil')
-            ->setDescription($this->faker->sentence(50))
-            ->setLocation('2 rue des poireaux, 94000 Créteil')
-            ->setDate(new \DateTime('2024-01-09 20:00:00'))
-            ->setCategory('sport')
-            ->setMaxGuests(5)
-            ->setHost($userDimitri)
-            ->setChat($chatFive);
+            ->addGuest($userMelinda)
+            ->addGuest($userGeoffrey);
         $manager->persist($meetFive);
 
-        $meetJeux = new Meet();
+        $meetJeux = Meet::create(
+            id: MeetId::create()->value(),
+            title: 'Jeux de sociétés',
+            description: $this->faker->sentence(50),
+            location: '15 rue du Commerce, 94310 Orly',
+            date: new \DateTime('2024-01-09 20:00:00'),
+            category: 'jeux',
+            maxGuests: 4,
+            host: $userIngrid,
+            chat: $chatJeux,
+        );
+
         $meetJeux
-            ->setTitle('Jeux de sociétés')
-            ->setDescription($this->faker->sentence(50))
-            ->setLocation('15 rue du Commerce, 94310 Orly')
-            ->setDate(new \DateTime('2024-01-09 20:00:00'))
-            ->setCategory('jeux')
-            ->setMaxGuests(4)
-            ->setHost($userIngrid)
-            ->setChat($chatJeux)
             ->addGuest($userMelinda);
         $manager->persist($meetJeux);
 
-        $meetClubbing = new Meet();
-        $meetClubbing
-            ->setTitle('Danser à la Favela')
-            ->setDescription($this->faker->sentence(50))
-            ->setLocation('15 rue du Faubourg du temple, 75010 Paris')
-            ->setDate(new \DateTime('2024-01-09 20:00:00'))
-            ->setCategory('clubbing')
-            ->setMaxGuests(4)
-            ->setHost($userMelinda)
-            ->setChat($chatClub);
+        $meetClubbing = Meet::create(
+            id: MeetId::create()->value(),
+            title: 'Danser à la Favela',
+            description: $this->faker->sentence(50),
+            location: '15 rue du Faubourg du temple, 75010 Paris',
+            date: new \DateTime('2024-01-09 20:00:00'),
+            category: 'clubbing',
+            maxGuests: 4,
+            host: $userMelinda,
+            chat: $chatClub,
+
+        );
         $manager->persist($meetClubbing);
 
-        $messageRaclette = new Message();
+        $messageRaclette = Message::create(MessageId::create()->value());
         $messageRaclette
             ->setAuthor($userDimitri)
             ->setContent('Trop hate de me régaler !!')
             ->setCreatedAt(new \DateTime())
             ->setChat($chatRaclette);
         $manager->persist($messageRaclette);
+        $manager->flush();
 
         $users = [];
         for ($i = 0; $i <= 3; ++$i) {
-            $user = new User();
             /** @var string $sex */
             $sex = $this->faker->randomElement(['male, female']);
-            $user
-                ->setEmail($this->faker->email())
-                ->setPassword($this->userPasswordHasher->hashPassword($user, $this->faker->password(10)))
-                ->setRoles(['ROLE_USER'])
-                ->setSex($sex)
-                ->setFirstname($this->faker->firstName($sex))
-                ->setLastname($this->faker->lastName())
-                ->setBio($this->faker->sentence())
-                ->setBirthday($this->faker->dateTimeBetween('-35 years'))
-                ->setCity($this->faker->city())
-                ->setPictureUrl('https://media.licdn.com/dms/image/C4D03AQFwsiU89fQuHg/profile-displayphoto-shrink_800_800/0/1610137674745?e=1707955200&v=beta&t=4-_8BYbCE6J4wIm8pdpPHJQN74thveWfwwMzQDqWIQc')
-                ->setCreatedAt(new \DateTime());
+            $user = User::create(
+                id: UserId::create()->value(),
+                email: $this->faker->email(),
+                password: $this->faker->password(10),
+                sex: $sex,
+                firstname: $this->faker->firstName($sex),
+                lastname: $this->faker->lastName(),
+                bio: $this->faker->sentence(),
+                birthday: $this->faker->dateTimeBetween('-50 years', '-18 years'),
+                city: $this->faker->city(),
+                pictureUrl: 'https://media.licdn.com/dms/image/C4D03AQFwsiU89fQuHg/profile-displayphoto-shrink_800_800/0/1610137674745?e=1707955200&v=beta&t=4-_8BYbCE6J4wIm8pdpPHJQN74thveWfwwMzQDqWIQc'
+            );
+            $user->setPassword($this->userPasswordHasher->hashPassword($userIngrid, $userIngrid->getPassword()));
             $manager->persist($user);
 
             $users[] = $user;
@@ -216,22 +235,25 @@ class AppFixtures extends Fixture
             /** @var User[] $guests */
             $guests = $this->faker->randomElements($users, $this->faker->numberBetween(1, $maxGuests));
 
-            $chat = new Chat();
+            $chat = Chat::create(ChatId::create()->value());
             $chat->addChatter($host);
             $manager->persist($chat);
 
-            $meet = new Meet();
             /** @var string $meetCategory */
             $meetCategory = $this->faker->randomElement(['clubbing', 'restaurant', 'bar', 'travail', 'sport']);
-            $meet
-                ->setTitle($this->faker->sentence(7))
-                ->setDescription($this->faker->sentence(50))
-                ->setLocation($this->faker->address())
-                ->setDate($this->faker->dateTimeThisYear())
-                ->setCategory($meetCategory)
-                ->setMaxGuests($maxGuests)
-                ->setChat($chat)
-                ->setHost($host);
+
+            $meet = Meet::create(
+                id: MeetId::create()->value(),
+                title: $this->faker->sentence(7),
+                description: $this->faker->sentence(50),
+                location: $this->faker->address(),
+                date: $this->faker->dateTimeThisYear(),
+                category: $meetCategory,
+                maxGuests: 4,
+                host: $host,
+                chat: $chat,
+
+            );
             $manager->persist($meet);
 
             foreach ($guests as $guest) {
@@ -240,7 +262,7 @@ class AppFixtures extends Fixture
             }
 
             for ($i = 0; $i <= $this->faker->randomNumber(1); ++$i) {
-                $message = new Message();
+                $message = Message::create(MessageId::create()->value());
                 /** @var User $user */
                 $user = $this->faker->randomElement($guests);
                 $message

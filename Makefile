@@ -48,7 +48,7 @@ cc:
 
 quality: composer-validate phpstan phpunit
 
-fixtures-test:
+fixtures:
 	$(EXEC_WWW) bin/console doctrine:fixtures:load -q
 
 init-db:

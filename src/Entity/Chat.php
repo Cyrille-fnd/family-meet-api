@@ -16,10 +16,8 @@ use Symfony\Component\Uid\Uuid;
 class Chat implements \JsonSerializable
 {
     #[ORM\Id]
-    #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
-    private ?Uuid $id = null;
+    #[ORM\Column]
+    private string $id;
 
     /**
      * @var Collection<int, User>
@@ -36,19 +34,25 @@ class Chat implements \JsonSerializable
     #[ORM\OneToMany(mappedBy: 'chat', targetEntity: Message::class, orphanRemoval: true)]
     private Collection $messages;
 
-    public function __construct()
+    public function __construct(string $id)
     {
+        $this->id = $id;
         $this->chatters = new ArrayCollection();
         $this->messages = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
-    public function getId(): ?Uuid
+    public static function create(string $id): self
+    {
+        return new self(id: $id);
+    }
+
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function setId(?Uuid $id): static
+    public function setId(string $id): static
     {
         $this->id = $id;
 

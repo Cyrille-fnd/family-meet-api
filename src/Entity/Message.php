@@ -7,17 +7,14 @@ namespace App\Entity;
 use App\Repository\MessageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
 class Message implements \JsonSerializable
 {
     #[ORM\Id]
-    #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
-    private ?Uuid $id = null;
+    #[ORM\Column]
+    private string $id;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -33,17 +30,23 @@ class Message implements \JsonSerializable
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private \DateTimeInterface $createdAt;
 
-    public function __construct()
+    public function __construct(string $id)
     {
+        $this->id = $id;
         $this->createdAt = new \DateTime();
     }
 
-    public function getId(): ?Uuid
+    public static function create(string $id): self
+    {
+        return new self(id: $id);
+    }
+
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function setId(?Uuid $id): static
+    public function setId(string $id): static
     {
         $this->id = $id;
 
