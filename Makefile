@@ -19,6 +19,21 @@ down:
 build:
 	docker compose build --no-cache
 
+build-for-prod:
+	docker build --platform linux/amd64 -t cyrilleferand/frankenphp:latest .
+
+push-prod-image:
+	docker push cyrilleferand/frankenphp:latest
+
+deploy-prod:
+	docker stack deploy -c docker-compose-prod.yml familymeet
+
+prod-context:
+	docker context use familymeet-prod
+
+local-context:
+	docker context use orbstack
+
 restart: stop start
 
 reload: down build start

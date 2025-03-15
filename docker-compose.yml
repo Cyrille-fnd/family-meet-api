@@ -12,11 +12,11 @@ services:
     # uncomment the following line if you want to run this in a production environment
     # restart: always
     ports:
-      - "8080:80" # HTTP
       - "443:443" # HTTPS
       - "443:443/udp" # HTTP/3
     environment:
       DATABASE_URL: mysql://user:password@db/familymeet?serverVersion=8.0.32&charset=utf8mb4
+      SERVER_NAME: api.family-meet.lan
     volumes:
       - caddy_data:/data
       - caddy_config:/config
