@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Meet\Domain\ValueObject\Category;
 use App\Repository\MeetRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: MeetRepository::class)]
 class Meet
@@ -62,7 +62,7 @@ class Meet
         string $description,
         string $location,
         \DateTimeInterface $date,
-        string $category,
+        Category $category,
         int $maxGuests,
         User $host,
         Chat $chat,
@@ -72,7 +72,7 @@ class Meet
         $this->description = $description;
         $this->location = $location;
         $this->date = $date;
-        $this->category = $category;
+        $this->category = $category->value;
         $this->maxGuests = $maxGuests;
         $this->host = $host;
         $this->chat = $chat;
@@ -87,7 +87,7 @@ class Meet
         string $description,
         string $location,
         \DateTimeInterface $date,
-        string $category,
+        Category $category,
         int $maxGuests,
         User $host,
         Chat $chat,
@@ -218,14 +218,14 @@ class Meet
         return $this;
     }
 
-    public function getCategory(): string
+    public function getCategory(): Category
     {
-        return $this->category;
+        return Category::from($this->category);
     }
 
-    public function setCategory(string $category): static
+    public function setCategory(Category $category): static
     {
-        $this->category = $category;
+        $this->category = $category->value;
 
         return $this;
     }
@@ -271,7 +271,7 @@ class Meet
             'description' => $this->getDescription(),
             'location' => $this->getLocation(),
             'date' => $this->getDate()->format('Y-m-d H:i:s'),
-            'category' => $this->getCategory(),
+            'category' => $this->getCategory()->value,
             'maxGuests' => $this->getMaxGuests(),
             'host' => $this->getHost()->jsonSerialize(),
             'createdAt' => $this->getCreatedAt()->format('Y-m-d H:i:s'),

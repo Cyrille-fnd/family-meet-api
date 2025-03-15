@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Meet\Domain\ValueObject\Sex;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -80,7 +81,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
         string $id,
         string $email,
         string $password,
-        string $sex,
+        Sex $sex,
         string $firstname,
         string $lastname,
         string $bio,
@@ -91,7 +92,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
         $this->id = $id;
         $this->email = $email;
         $this->password = $password;
-        $this->sex = $sex;
+        $this->sex = $sex->value;
         $this->firstname = $firstname;
         $this->lastname = $lastname;
         $this->bio = $bio;
@@ -109,7 +110,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
         string $id,
         string $email,
         string $password,
-        string $sex,
+        Sex $sex,
         string $firstname,
         string $lastname,
         string $bio,
@@ -211,14 +212,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
         // $this->plainPassword = null;
     }
 
-    public function getSex(): string
+    public function getSex(): Sex
     {
-        return $this->sex;
+        return Sex::from($this->sex);
     }
 
-    public function setSex(string $sex): static
+    public function setSex(Sex $sex): static
     {
-        $this->sex = $sex;
+        $this->sex = $sex->value;
 
         return $this;
     }
@@ -405,7 +406,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \JsonSe
         return [
             'id' => $this->getId(),
             'email' => $this->getEmail(),
-            'sex' => $this->getSex(),
+            'sex' => $this->getSex()->value,
             'firstname' => $this->getFirstname(),
             'lastname' => $this->getLastname(),
             'bio' => $this->getBio(),

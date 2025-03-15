@@ -8,6 +8,7 @@ use App\Meet\Application\CommandBusInterface;
 use App\Meet\Application\DTO\SignupInputDto;
 use App\Meet\Application\Signup\SignupCommand;
 use App\Meet\Domain\ValueObject\Identity\UserId;
+use App\Meet\Domain\ValueObject\Sex;
 use App\Meet\Domain\ValueObject\SignupInformation;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,7 +27,7 @@ final readonly class SignupController
             id: UserId::create(),
             email: $signupDto->email,
             password: $signupDto->password,
-            sex: $signupDto->sex,
+            sex: Sex::from($signupDto->sex),
             firstName: $signupDto->firstname,
             lastName: $signupDto->lastname,
             bio: $signupDto->bio,

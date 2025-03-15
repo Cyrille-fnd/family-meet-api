@@ -7,7 +7,9 @@ namespace App\Controller;
 use App\Entity\Chat;
 use App\Entity\Meet;
 use App\Entity\User;
+use App\Meet\Domain\ValueObject\Category;
 use App\Meet\Domain\ValueObject\Identity\ChatId;
+use App\Meet\Domain\ValueObject\Identity\MeetId;
 use App\Meet\Domain\ValueObject\Uuid;
 use App\Repository\MeetRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -56,12 +58,12 @@ final class MeetController extends AbstractController
         $chat->addChatter($host);
 
         $meet = Meet::create(
-            id: Uuid::create()->value(),
+            id: MeetId::create()->value(),
             title: $title,
             description: $description,
             location: $location,
             date: new \DateTime($date),
-            category: $category,
+            category: Category::from($category),
             maxGuests: (int) $maxGuests,
             host: $host,
             chat: $chat,
@@ -188,7 +190,7 @@ final class MeetController extends AbstractController
             ->setDescription($description)
             ->setLocation($location)
             ->setDate(new \DateTime($date))
-            ->setCategory($category)
+            ->setCategory(Category::from($category))
             ->setMaxGuests($maxGuests)
             ->setUpdatedAt(new \DateTime());
 

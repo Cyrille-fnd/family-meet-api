@@ -8,10 +8,12 @@ use App\Entity\Chat;
 use App\Entity\Meet;
 use App\Entity\Message;
 use App\Entity\User;
+use App\Meet\Domain\ValueObject\Category;
 use App\Meet\Domain\ValueObject\Identity\ChatId;
 use App\Meet\Domain\ValueObject\Identity\MeetId;
 use App\Meet\Domain\ValueObject\Identity\MessageId;
 use App\Meet\Domain\ValueObject\Identity\UserId;
+use App\Meet\Domain\ValueObject\Sex;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
@@ -37,7 +39,7 @@ class AppFixtures extends Fixture
             id: UserId::create()->value(),
             email: 'ferandc@gmail.com',
             password: 'zz',
-            sex: 'male',
+            sex: Sex::MALE,
             firstname: 'Cyrille',
             lastname: 'Ferand',
             bio: 'Ici pour le fun !!',
@@ -52,7 +54,7 @@ class AppFixtures extends Fixture
             id: UserId::create()->value(),
             email: 'apatoutm@gmail.com',
             password: 'zz',
-            sex: 'female',
+            sex: Sex::FEMALE,
             firstname: 'Melinda',
             lastname: 'Apatout',
             bio: 'Ici par curiosité',
@@ -67,7 +69,7 @@ class AppFixtures extends Fixture
             id: UserId::create()->value(),
             email: 'apatoutg@gmail.com',
             password: 'zz',
-            sex: 'male',
+            sex: Sex::MALE,
             firstname: 'Geoffrey',
             lastname: 'Apatout',
             bio: '',
@@ -82,7 +84,7 @@ class AppFixtures extends Fixture
             id: UserId::create()->value(),
             email: 'niced@gmail.com',
             password: 'zz',
-            sex: 'male',
+            sex: Sex::MALE,
             firstname: 'Dimitri',
             lastname: 'Nice',
             bio: '',
@@ -97,7 +99,7 @@ class AppFixtures extends Fixture
             id: UserId::create()->value(),
             email: 'apatouti@gmail.com',
             password: 'zz',
-            sex: 'female',
+            sex: Sex::FEMALE,
             firstname: 'Ingrid',
             lastname: 'Apatout',
             bio: '',
@@ -136,7 +138,7 @@ class AppFixtures extends Fixture
             description: $this->faker->sentence(50),
             location: 'Chez Cyrille',
             date: new \DateTime('2024-01-09 20:00:00'),
-            category: 'Restaurant',
+            category: Category::RESTAURANT,
             maxGuests: 6,
             host: $userCyrille,
             chat: $chatRaclette,
@@ -153,7 +155,7 @@ class AppFixtures extends Fixture
             description: $this->faker->sentence(50),
             location: '2 rue des poireaux, 94000 Créteil',
             date: new \DateTime('2024-01-09 20:00:00'),
-            category: 'Sport',
+            category: Category::SPORT,
             maxGuests: 5,
             host: $userDimitri,
             chat: $chatFive,
@@ -171,7 +173,7 @@ class AppFixtures extends Fixture
             description: $this->faker->sentence(50),
             location: '15 rue du Commerce, 94310 Orly',
             date: new \DateTime('2024-01-09 20:00:00'),
-            category: 'jeux',
+            category: Category::JEUX,
             maxGuests: 4,
             host: $userIngrid,
             chat: $chatJeux,
@@ -187,7 +189,7 @@ class AppFixtures extends Fixture
             description: $this->faker->sentence(50),
             location: '15 rue du Faubourg du temple, 75010 Paris',
             date: new \DateTime('2024-01-09 20:00:00'),
-            category: 'clubbing',
+            category: Category::CLUBBING,
             maxGuests: 4,
             host: $userMelinda,
             chat: $chatClub,
@@ -206,8 +208,8 @@ class AppFixtures extends Fixture
 
         $users = [];
         for ($i = 0; $i <= 3; ++$i) {
-            /** @var string $sex */
-            $sex = $this->faker->randomElement(['male, female']);
+            /** @var Sex $sex */
+            $sex = $this->faker->randomElement(Sex::class);
             $user = User::create(
                 id: UserId::create()->value(),
                 email: $this->faker->email(),
@@ -239,8 +241,8 @@ class AppFixtures extends Fixture
             $chat->addChatter($host);
             $manager->persist($chat);
 
-            /** @var string $meetCategory */
-            $meetCategory = $this->faker->randomElement(['clubbing', 'restaurant', 'bar', 'travail', 'sport']);
+            /** @var Category $meetCategory */
+            $meetCategory = $this->faker->randomElement(Category::class);
 
             $meet = Meet::create(
                 id: MeetId::create()->value(),

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Meet\Domain\ValueObject\Sex;
 use Aws\S3\S3Client;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -90,7 +91,7 @@ final class UserController extends AbstractController
         $payload = json_decode($content, true);
 
         $user
-            ->setSex($payload['sex'])
+            ->setSex(Sex::from($payload['sex']))
             ->setFirstname($payload['firstname'])
             ->setLastname($payload['lastname'])
             ->setBio($payload['bio'])
