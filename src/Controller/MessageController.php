@@ -7,7 +7,7 @@ namespace App\Controller;
 use App\Entity\Chat;
 use App\Entity\Message;
 use App\Entity\User;
-use App\Meet\Domain\ValueObject\MessageId;
+use App\Meet\Domain\ValueObject\Identity\MessageId;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

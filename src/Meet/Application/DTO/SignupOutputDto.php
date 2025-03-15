@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Meet\Application\DTO;
 
-use App\Meet\Domain\ValueObject\UserId;
+use App\Meet\Domain\ValueObject\Identity\UserId;
 
 final readonly class SignupOutputDto
 {

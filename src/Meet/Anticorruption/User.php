@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Meet\Anticorruption;
 
 use App\Entity\User as LegacyUser;
+use App\Meet\Domain\ValueObject\Identity\UserId;
 use App\Meet\Domain\ValueObject\SignupInformation;
-use App\Meet\Domain\ValueObject\UserId;
 
 class User
 {

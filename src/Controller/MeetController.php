@@ -7,7 +7,7 @@ namespace App\Controller;
 use App\Entity\Chat;
 use App\Entity\Meet;
 use App\Entity\User;
-use App\Meet\Domain\ValueObject\ChatId;
+use App\Meet\Domain\ValueObject\Identity\ChatId;
 use App\Meet\Domain\ValueObject\Uuid;
 use App\Repository\MeetRepository;
 use Doctrine\ORM\EntityManagerInterface;

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Meet\Domain\ValueObject;
 
+use App\Meet\Domain\ValueObject\Identity\UserId;
+
 final readonly class SignupInformation
 {
     public function __construct(
