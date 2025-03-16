@@ -19,6 +19,8 @@ FROM dunglas/frankenphp AS runner
 
 COPY --from=builder /usr/local/bin/frankenphp /usr/local/bin/frankenphp
 
+RUN apt update && apt install -y zsh curl
+
 RUN chmod +x /usr/local/bin/frankenphp; \
     install-php-extensions mysqli mysqlnd pdo pdo_mysql zip
 

@@ -44,7 +44,7 @@ ps:
 	docker compose ps
 
 sh:
-	$(EXEC_WWW) /bin/sh
+	$(EXEC_WWW) /bin/zsh
 
 phpstan:
 	$(EXEC_WWW) vendor/bin/phpstan analyse --memory-limit=256M -c phpstan.neon
