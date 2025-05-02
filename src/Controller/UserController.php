@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\User;
-use App\Meet\Domain\ValueObject\Sex;
+use App\Domain\Entity\User;
+use App\Domain\ValueObject\DateTimeImmutable;
+use App\Domain\ValueObject\Sex;
 use Aws\S3\S3Client;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -95,7 +96,8 @@ final class UserController extends AbstractController
             ->setFirstname($payload['firstname'])
             ->setLastname($payload['lastname'])
             ->setBio($payload['bio'])
-            ->setBirthday(new \DateTime($payload['birthday']))
+            ->setBirthday(DateTimeImmutable::fromString($payload['birthday']))
+            ->setUpdatedAt(DateTimeImmutable::create())
             ->setCity($payload['city'])
             ->setPictureUrl($payload['pictureUrl']);
 
@@ -126,7 +128,9 @@ final class UserController extends AbstractController
 
             /** @var string $bucketPath */
             $bucketPath = $this->getParameter('app.aws_s3_users_bucket_path');
-            $user->setPictureUrl(str_replace('amazon_s3', 'localhost',
+            $user->setPictureUrl(str_replace(
+                'amazon_s3',
+                'localhost',
                 $client->getObjectUrl(
                     $bucketPath,
                     $userId->toRfc4122()

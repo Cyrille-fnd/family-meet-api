@@ -21,10 +21,11 @@ final class SendResourceNotFoundResponseListener
             return;
         }
 
-        $response = new JsonResponse([
-            'code' => 'resource_not_found',
-            'message' => $exception->getMessage(),
-        ],
+        $response = new JsonResponse(
+            [
+                'code' => 'resource_not_found',
+                'message' => $exception->getMessage(),
+            ],
             Response::HTTP_NOT_FOUND,
         );
 

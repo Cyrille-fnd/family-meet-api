@@ -1,0 +1,21 @@
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                                      https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Domain\Entity\User">
+        <id name="id" type="user_id" />
+        <field name="email" length="180" unique="true" />
+        <field name="roles" type="json" />
+        <field name="password" length="255" />
+        <field name="sex" length="255" />
+        <field name="firstname" length="255" />
+        <field name="lastname" length="255" />
+        <field name="bio" type="text" nullable="true" />
+        <field name="birthday" type="extended_datetime_immutable" />
+        <field name="createdAt" type="extended_datetime_immutable" />
+        <field name="updatedAt" type="extended_datetime_immutable" />
+        <field name="city" length="255" />
+        <field name="pictureUrl" length="255" nullable="true" />
+    </entity>
+</doctrine-mapping>

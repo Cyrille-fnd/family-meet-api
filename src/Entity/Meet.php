@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Meet\Domain\ValueObject\Category;
+use App\Domain\Entity\User;
+use App\Domain\ValueObject\Category;
 use App\Repository\MeetRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -78,7 +79,7 @@ class Meet
         $this->chat = $chat;
         $this->guests = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTime();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     public static function create(

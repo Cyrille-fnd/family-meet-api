@@ -19,20 +19,6 @@ down:
 build:
 	docker compose build --no-cache
 
-build-for-prod:
-	docker build --platform linux/amd64 -t cyrilleferand/frankenphp:latest .
-
-push-prod-image:
-	docker push cyrilleferand/frankenphp:latest
-
-deploy-prod:
-	docker stack deploy -c docker-compose-prod.yml familymeet
-
-prod-context:
-	docker context use familymeet-prod
-
-local-context:
-	docker context use orbstack
 
 restart: stop start
 
@@ -44,7 +30,7 @@ ps:
 	docker compose ps
 
 sh:
-	$(EXEC_WWW) /bin/zsh
+	$(EXEC_WWW) /bin/sh
 
 phpstan:
 	$(EXEC_WWW) vendor/bin/phpstan analyse --memory-limit=256M -c phpstan.neon
@@ -61,7 +47,7 @@ phpunit:
 cc:
 	$(EXEC_WWW) bin/console cache:clear
 
-quality: composer-validate phpstan phpunit
+quality: composer-validate phpstan php-cs-fixer-fix
 
 fixtures:
 	$(EXEC_WWW) bin/console doctrine:fixtures:load -q
@@ -85,3 +71,19 @@ composer-install:
 
 composer-validate:
 	$(EXEC_WWW) composer validate
+
+############################ Production ####################################
+build-for-prod:
+	docker build --platform linux/amd64 -t cyrilleferand/frankenphp:latest .
+
+push-prod-image:
+	docker push cyrilleferand/frankenphp:latest
+
+deploy-prod:
+	docker stack deploy -c docker-compose-prod.yml familymeet
+
+prod-context:
+	docker context use familymeet-prod
+
+local-context:
+	docker context use orbstack

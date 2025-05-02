@@ -28,6 +28,10 @@ services:
 
     Symfony\Component\Dotenv\Command\DotenvDumpCommand: ~
 
+    App\Infrastructure\Symfony\Bridge\Security\SecurityUserProvider:
+      tags:
+        - { name: 'security.user_provider' }
+
     Aws\S3\S3Client:
         class: Aws\S3\S3Client
         arguments:
@@ -38,13 +42,13 @@ services:
               signature_version: 'v4'
               credentials: {'key' : '%env(AWS_ACCESS_KEY_ID)%', 'secret' : '%env(AWS_SECRET_ACCESS_KEY)%'}
 
-    App\Meet\Presentation\Http\Rest\Controller\:
-      resource: '../src/Meet/Presentation/Http/Rest/Controller/'
+    App\Presentation\Http\Rest\Controller\:
+      resource: '../src/Presentation/Http/Rest/Controller/'
       tags: ['controller.service_arguments']
 
     _instanceof:
-      App\Meet\Application\CommandHandlerInterface:
+      App\Application\CommandHandlerInterface:
         tags: [{name: messenger.message_handler, bus: command.bus}]
 
-      App\Meet\Application\EventHandlerInterface:
+      App\Application\EventHandlerInterface:
         tags: [{name: messenger.message_handler, bus: event.bus}]

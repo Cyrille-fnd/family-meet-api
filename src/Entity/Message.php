@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Domain\Entity\User;
+use App\Domain\ValueObject\DateTimeImmutable;
 use App\Repository\MessageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -28,12 +30,12 @@ class Message implements \JsonSerializable
     private string $content;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private \DateTimeInterface $createdAt;
+    private DateTimeImmutable $createdAt;
 
     public function __construct(string $id)
     {
         $this->id = $id;
-        $this->createdAt = new \DateTime();
+        $this->createdAt = DateTimeImmutable::create();
     }
 
     public static function create(string $id): self
@@ -89,12 +91,12 @@ class Message implements \JsonSerializable
         return $this;
     }
 
-    public function getCreatedAt(): \DateTimeInterface
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    public function setCreatedAt(DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
 

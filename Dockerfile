@@ -1,4 +1,4 @@
-FROM dunglas/frankenphp:builder AS builder
+FROM dunglas/frankenphp:1-builder-php8.3-alpine AS builder
 
 COPY --from=caddy:builder /usr/bin/xcaddy /usr/bin/xcaddy
 
@@ -15,11 +15,9 @@ RUN CGO_ENABLED=1 \
         --with github.com/dunglas/mercure/caddy \
         --with github.com/dunglas/vulcain/caddy
 
-FROM dunglas/frankenphp AS runner
+FROM dunglas/frankenphp:1-builder-php8.3-alpine AS runner
 
 COPY --from=builder /usr/local/bin/frankenphp /usr/local/bin/frankenphp
-
-RUN apt update && apt install -y zsh curl
 
 RUN chmod +x /usr/local/bin/frankenphp; \
     install-php-extensions mysqli mysqlnd pdo pdo_mysql zip

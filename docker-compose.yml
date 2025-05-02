@@ -33,6 +33,7 @@ services:
       - ./.env:/app/.env
       - ./.env.test:/app/.env.test
       - ./phpunit.xml.dist:/app/phpunit.xml.dist
+      - ./php-cs-fixer.dist.php:/app/php-cs-fixer.dist.php
       - ./composer.json:/app/composer.json
       - ./composer.lock:/app/composer.lock
       - ./phpstan.neon:/app/phpstan.neon

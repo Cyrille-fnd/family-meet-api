@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Domain\ValueObject\Identity\ChatId;
 use App\Entity\Chat;
-use App\Meet\Domain\ValueObject\Identity\ChatId;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

@@ -29,7 +29,7 @@ framework:
 
         routing:
             # Route your messages to the transports
-            'App\Meet\Domain\Event\UserRegisteredEvent': async
+            'App\Domain\Event\UserRegisteredEvent': async
 
 # when@test:
 #    framework:

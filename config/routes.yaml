@@ -1,5 +1,5 @@
 Meet:
-    resource: ../src/Meet/Infrastructure/Symfony/Resources/routes.yaml
+    resource: ../src/Infrastructure/Symfony/Bridge/Resources/routes.yaml
 
 controllers:
     resource:

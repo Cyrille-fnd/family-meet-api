@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Domain\Entity\User;
+use App\Domain\ValueObject\Category;
+use App\Domain\ValueObject\Identity\ChatId;
+use App\Domain\ValueObject\Identity\MeetId;
 use App\Entity\Chat;
 use App\Entity\Meet;
-use App\Entity\User;
-use App\Meet\Domain\ValueObject\Category;
-use App\Meet\Domain\ValueObject\Identity\ChatId;
-use App\Meet\Domain\ValueObject\Identity\MeetId;
-use App\Meet\Domain\ValueObject\Uuid;
 use App\Repository\MeetRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -62,7 +61,7 @@ final class MeetController extends AbstractController
             title: $title,
             description: $description,
             location: $location,
-            date: new \DateTime($date),
+            date: new \DateTimeImmutable($date),
             category: Category::from($category),
             maxGuests: (int) $maxGuests,
             host: $host,
@@ -109,9 +108,7 @@ final class MeetController extends AbstractController
                 );
             }
 
-            $meets['hostedMeets'] = array_map(function (Meet $hostedMeet) {
-                return $hostedMeet->jsonSerialize();
-            }, $host->getHostedMeets()->toArray());
+            $meets['hostedMeets'] = [];
         }
 
         if (null !== $guestId) {
@@ -127,9 +124,7 @@ final class MeetController extends AbstractController
                 );
             }
 
-            $meets['meets'] = array_map(function (Meet $meet) {
-                return $meet->jsonSerialize();
-            }, $guest->getMeets()->toArray());
+            $meets['meets'] = [];
         }
 
         return new JsonResponse($meets);
@@ -147,7 +142,8 @@ final class MeetController extends AbstractController
                 [
                     'code' => 'meet_not_found',
                     'message' => 'meet not found',
-                ], Response::HTTP_NOT_FOUND
+                ],
+                Response::HTTP_NOT_FOUND
             );
         }
 
@@ -167,7 +163,9 @@ final class MeetController extends AbstractController
                 [
                     'code' => 'meet_not_found',
                     'message' => 'meet not found',
-                ], Response::HTTP_NOT_FOUND);
+                ],
+                Response::HTTP_NOT_FOUND
+            );
         }
 
         $payload = $request->getPayload();
@@ -189,10 +187,10 @@ final class MeetController extends AbstractController
             ->setTitle($title)
             ->setDescription($description)
             ->setLocation($location)
-            ->setDate(new \DateTime($date))
+            ->setDate(new \DateTimeImmutable($date))
             ->setCategory(Category::from($category))
             ->setMaxGuests($maxGuests)
-            ->setUpdatedAt(new \DateTime());
+            ->setUpdatedAt(new \DateTimeImmutable());
 
         $entityManager->flush();
 
@@ -211,7 +209,9 @@ final class MeetController extends AbstractController
                 [
                     'code' => 'meet_not_found',
                     'message' => 'meet not found',
-                ], Response::HTTP_NOT_FOUND);
+                ],
+                Response::HTTP_NOT_FOUND
+            );
         }
 
         $entityManager->remove($meet);

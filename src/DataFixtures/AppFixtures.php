@@ -4,110 +4,114 @@ declare(strict_types=1);
 
 namespace App\DataFixtures;
 
+use App\Domain\Entity\User;
+use App\Domain\Service\UserCreatorInterface;
+use App\Domain\ValueObject\Category;
+use App\Domain\ValueObject\DateTimeImmutable;
+use App\Domain\ValueObject\Identity\ChatId;
+use App\Domain\ValueObject\Identity\MeetId;
+use App\Domain\ValueObject\Identity\MessageId;
+use App\Domain\ValueObject\Identity\UserId;
+use App\Domain\ValueObject\RegisterInformation;
+use App\Domain\ValueObject\Sex;
 use App\Entity\Chat;
 use App\Entity\Meet;
 use App\Entity\Message;
-use App\Entity\User;
-use App\Meet\Domain\ValueObject\Category;
-use App\Meet\Domain\ValueObject\Identity\ChatId;
-use App\Meet\Domain\ValueObject\Identity\MeetId;
-use App\Meet\Domain\ValueObject\Identity\MessageId;
-use App\Meet\Domain\ValueObject\Identity\UserId;
-use App\Meet\Domain\ValueObject\Sex;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 use Faker\Generator;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class AppFixtures extends Fixture
+final class AppFixtures extends Fixture
 {
-    private UserPasswordHasherInterface $userPasswordHasher;
-
     private Generator $faker;
 
     public function __construct(
-        UserPasswordHasherInterface $userPasswordHasher,
+        private UserCreatorInterface $userCreator,
     ) {
-        $this->userPasswordHasher = $userPasswordHasher;
         $this->faker = Factory::create();
     }
 
     public function load(ObjectManager $manager): void
     {
-        $userCyrille = User::create(
-            id: UserId::create()->value(),
+        $userCyrille = $this->userCreator->create(RegisterInformation::create(
+            id: UserId::create(),
             email: 'ferandc@gmail.com',
             password: 'zz',
             sex: Sex::MALE,
             firstname: 'Cyrille',
             lastname: 'Ferand',
             bio: 'Ici pour le fun !!',
-            birthday: new \DateTime('1989-02-06'),
+            birthday: DateTimeImmutable::fromString('1989-02-06'),
+            createdAt: DateTimeImmutable::create(),
+            updatedAt: DateTimeImmutable::create(),
             city: 'Villejuif',
             pictureUrl: 'https://media.licdn.com/dms/image/C4D03AQFwsiU89fQuHg/profile-displayphoto-shrink_800_800/0/1610137674745?e=1707955200&v=beta&t=4-_8BYbCE6J4wIm8pdpPHJQN74thveWfwwMzQDqWIQc'
-        );
-        $userCyrille->setPassword($this->userPasswordHasher->hashPassword($userCyrille, $userCyrille->getPassword()));
+        ));
         $manager->persist($userCyrille);
 
-        $userMelinda = User::create(
-            id: UserId::create()->value(),
+        $userMelinda = $this->userCreator->create(RegisterInformation::create(
+            id: UserId::create(),
             email: 'apatoutm@gmail.com',
             password: 'zz',
             sex: Sex::FEMALE,
             firstname: 'Melinda',
             lastname: 'Apatout',
             bio: 'Ici par curiosité',
-            birthday: new \DateTime('2000-08-20'),
+            birthday: DateTimeImmutable::fromString('2000-08-20'),
+            createdAt: DateTimeImmutable::create(),
+            updatedAt: DateTimeImmutable::create(),
             city: 'Orly',
             pictureUrl: null
-        );
-        $userMelinda->setPassword($this->userPasswordHasher->hashPassword($userMelinda, $userMelinda->getPassword()));
+        ));
         $manager->persist($userMelinda);
 
-        $userGeoffrey = User::create(
-            id: UserId::create()->value(),
+        $userGeoffrey = $this->userCreator->create(RegisterInformation::create(
+            id: UserId::create(),
             email: 'apatoutg@gmail.com',
             password: 'zz',
             sex: Sex::MALE,
             firstname: 'Geoffrey',
             lastname: 'Apatout',
             bio: '',
-            birthday: new \DateTime('1986-07-02'),
+            birthday: DateTimeImmutable::fromString('1986-07-02'),
+            createdAt: DateTimeImmutable::create(),
+            updatedAt: DateTimeImmutable::create(),
             city: 'Orly',
             pictureUrl: null
-        );
-        $userGeoffrey->setPassword($this->userPasswordHasher->hashPassword($userGeoffrey, $userGeoffrey->getPassword()));
+        ));
         $manager->persist($userGeoffrey);
 
-        $userDimitri = User::create(
-            id: UserId::create()->value(),
+        $userDimitri = $this->userCreator->create(RegisterInformation::create(
+            id: UserId::create(),
             email: 'niced@gmail.com',
             password: 'zz',
             sex: Sex::MALE,
             firstname: 'Dimitri',
             lastname: 'Nice',
             bio: '',
-            birthday: new \DateTime('1987-11-26'),
+            birthday: DateTimeImmutable::fromString('1987-11-26'),
+            createdAt: DateTimeImmutable::create(),
+            updatedAt: DateTimeImmutable::create(),
             city: 'Thiais',
             pictureUrl: null
-        );
-        $userDimitri->setPassword($this->userPasswordHasher->hashPassword($userDimitri, $userDimitri->getPassword()));
+        ));
         $manager->persist($userDimitri);
 
-        $userIngrid = User::create(
-            id: UserId::create()->value(),
+        $userIngrid = $this->userCreator->create(RegisterInformation::create(
+            id: UserId::create(),
             email: 'apatouti@gmail.com',
             password: 'zz',
             sex: Sex::FEMALE,
             firstname: 'Ingrid',
             lastname: 'Apatout',
             bio: '',
-            birthday: new \DateTime('1977-06-06'),
+            birthday: DateTimeImmutable::fromString('1977-06-06'),
+            createdAt: DateTimeImmutable::create(),
+            updatedAt: DateTimeImmutable::create(),
             city: 'Orly',
             pictureUrl: null
-        );
-        $userIngrid->setPassword($this->userPasswordHasher->hashPassword($userIngrid, $userIngrid->getPassword()));
+        ));
         $manager->persist($userIngrid);
 
         $chatRaclette = Chat::create(ChatId::create()->value());
@@ -159,7 +163,6 @@ class AppFixtures extends Fixture
             maxGuests: 5,
             host: $userDimitri,
             chat: $chatFive,
-
         );
 
         $meetFive
@@ -193,7 +196,6 @@ class AppFixtures extends Fixture
             maxGuests: 4,
             host: $userMelinda,
             chat: $chatClub,
-
         );
         $manager->persist($meetClubbing);
 
@@ -201,7 +203,7 @@ class AppFixtures extends Fixture
         $messageRaclette
             ->setAuthor($userDimitri)
             ->setContent('Trop hate de me régaler !!')
-            ->setCreatedAt(new \DateTime())
+            ->setCreatedAt(DateTimeImmutable::create())
             ->setChat($chatRaclette);
         $manager->persist($messageRaclette);
         $manager->flush();
@@ -210,19 +212,20 @@ class AppFixtures extends Fixture
         for ($i = 0; $i <= 3; ++$i) {
             /** @var Sex $sex */
             $sex = $this->faker->randomElement(Sex::class);
-            $user = User::create(
-                id: UserId::create()->value(),
+            $user = $this->userCreator->create(RegisterInformation::create(
+                id: UserId::create(),
                 email: $this->faker->email(),
                 password: $this->faker->password(10),
                 sex: $sex,
                 firstname: $this->faker->firstName($sex),
                 lastname: $this->faker->lastName(),
                 bio: $this->faker->sentence(),
-                birthday: $this->faker->dateTimeBetween('-50 years', '-18 years'),
+                birthday: DateTimeImmutable::fromDateTime($this->faker->dateTimeBetween('-50 years', '-18 years')),
+                createdAt: DateTimeImmutable::create(),
+                updatedAt: DateTimeImmutable::create(),
                 city: $this->faker->city(),
                 pictureUrl: 'https://media.licdn.com/dms/image/C4D03AQFwsiU89fQuHg/profile-displayphoto-shrink_800_800/0/1610137674745?e=1707955200&v=beta&t=4-_8BYbCE6J4wIm8pdpPHJQN74thveWfwwMzQDqWIQc'
-            );
-            $user->setPassword($this->userPasswordHasher->hashPassword($userIngrid, $userIngrid->getPassword()));
+            ));
             $manager->persist($user);
 
             $users[] = $user;
@@ -232,7 +235,7 @@ class AppFixtures extends Fixture
             /** @var User $host */
             $host = $this->faker->randomElement($users);
 
-            $maxGuests = $this->faker->numberBetween(1, count($users));
+            $maxGuests = $this->faker->numberBetween(1, \count($users));
 
             /** @var User[] $guests */
             $guests = $this->faker->randomElements($users, $this->faker->numberBetween(1, $maxGuests));
@@ -254,7 +257,6 @@ class AppFixtures extends Fixture
                 maxGuests: 4,
                 host: $host,
                 chat: $chat,
-
             );
             $manager->persist($meet);
 
@@ -270,7 +272,7 @@ class AppFixtures extends Fixture
                 $message
                     ->setAuthor($user)
                     ->setContent($this->faker->sentence(7))
-                    ->setCreatedAt(new \DateTime())
+                    ->setCreatedAt(DateTimeImmutable::create())
                     ->setChat($chat);
                 $manager->persist($message);
             }

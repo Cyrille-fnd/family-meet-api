@@ -1,0 +1,11 @@
+healthcheck:
+  path: /healthcheck
+  methods: 'GET'
+  format: 'json'
+  controller: App\Presentation\Http\Rest\Controller\HealthcheckController
+
+register:
+  path: /api/v2/users
+  methods: 'POST'
+  format: 'json'
+  controller: App\Presentation\Http\Rest\Controller\RegisterController
