@@ -19,57 +19,6 @@ use Symfony\Component\Uid\Uuid;
 
 final class UserController extends AbstractController
 {
-    #[Route('/api/v2/users', name: 'api_v2_users_get', methods: ['GET'])]
-    public function get(
-        Request $request,
-        EntityManagerInterface $em,
-    ): JsonResponse {
-        if ($request->query->get('current')) {
-            /** @var User|null $user */
-            $user = $this->getUser();
-
-            if (null === $user) {
-                return new JsonResponse(
-                    [
-                        'code' => 'user_not_found',
-                        'message' => 'user not found',
-                    ],
-                    Response::HTTP_NOT_FOUND
-                );
-            }
-
-            return new JsonResponse(
-                $user->jsonSerialize(),
-                Response::HTTP_OK,
-                [],
-                false
-            );
-        }
-
-        $users = array_map(function (User $user) {
-            return $user->jsonSerialize();
-        }, $em->getRepository(User::class)->findAll());
-
-        return new JsonResponse(
-            $users,
-            Response::HTTP_OK,
-            [],
-            false
-        );
-    }
-
-    #[Route('/api/v2/users/{id}', name: 'api_v2_users_get_by_id', methods: ['GET'])]
-    public function getById(
-        User $user,
-    ): JsonResponse {
-        return new JsonResponse(
-            $user->jsonSerialize(),
-            Response::HTTP_OK,
-            [],
-            false
-        );
-    }
-
     #[Route('api/v2/users/{id}', name: 'api_v2_users_put', methods: ['PUT'])]
     public function put(
         User $user,

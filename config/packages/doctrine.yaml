@@ -8,8 +8,8 @@ doctrine:
 
         profiling_collect_backtrace: '%kernel.debug%'
         types:
-            extended_datetime_immutable: App\Infrastructure\Symfony\Bridge\Doctrine\types\ExtendedDateTimeImmutableType
-            user_id: App\Infrastructure\Symfony\Bridge\Doctrine\types\UserIdType
+            extended_datetime_immutable: App\Infrastructure\Bridge\Symfony\Doctrine\types\ExtendedDateTimeImmutableType
+            user_id: App\Infrastructure\Bridge\Symfony\Doctrine\types\UserIdType
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true
@@ -27,7 +27,7 @@ doctrine:
             Domain:
                 type: xml
                 is_bundle: false
-                dir: '%kernel.project_dir%/src/Infrastructure/Symfony/Bridge/Doctrine/mapping/entity'
+                dir: '%kernel.project_dir%/src/Infrastructure/Bridge/Symfony/Doctrine/mapping/entity'
                 prefix: 'App\Domain\Entity'
                 alias: Domain
 

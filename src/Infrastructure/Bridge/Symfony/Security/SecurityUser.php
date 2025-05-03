@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Symfony\Bridge\Security;
+namespace App\Infrastructure\Bridge\Symfony\Security;
 
 use App\Domain\Entity\User;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;

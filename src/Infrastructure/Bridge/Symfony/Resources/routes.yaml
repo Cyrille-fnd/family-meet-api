@@ -9,3 +9,9 @@ register:
   methods: 'POST'
   format: 'json'
   controller: App\Presentation\Http\Rest\Controller\RegisterController
+
+get_user:
+  path: /api/v2/users/{id}
+  methods: 'GET'
+  format: 'json'
+  controller: App\Presentation\Http\Rest\Controller\GetUserController

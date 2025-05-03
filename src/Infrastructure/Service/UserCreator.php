@@ -7,7 +7,7 @@ namespace App\Infrastructure\Service;
 use App\Domain\Entity\User;
 use App\Domain\Service\UserCreatorInterface;
 use App\Domain\ValueObject\RegisterInformation;
-use App\Infrastructure\Symfony\Bridge\Security\SecurityUser;
+use App\Infrastructure\Bridge\Symfony\Security\SecurityUser;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final readonly class UserCreator implements UserCreatorInterface

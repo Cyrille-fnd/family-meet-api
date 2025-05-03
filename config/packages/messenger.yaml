@@ -5,6 +5,9 @@ framework:
           command.bus:
             middleware:
               - doctrine_transaction
+          query.bus:
+            middleware:
+              - doctrine_transaction
           event.bus:
             default_middleware:
               enabled: true

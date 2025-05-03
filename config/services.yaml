@@ -28,7 +28,7 @@ services:
 
     Symfony\Component\Dotenv\Command\DotenvDumpCommand: ~
 
-    App\Infrastructure\Symfony\Bridge\Security\SecurityUserProvider:
+    App\Infrastructure\Bridge\Symfony\Security\SecurityUserProvider:
       tags:
         - { name: 'security.user_provider' }
 
@@ -49,6 +49,9 @@ services:
     _instanceof:
       App\Application\CommandHandlerInterface:
         tags: [{name: messenger.message_handler, bus: command.bus}]
+
+      App\Application\QueryHandlerInterface:
+        tags: [{name: messenger.message_handler, bus: query.bus}]
 
       App\Application\EventHandlerInterface:
         tags: [{name: messenger.message_handler, bus: event.bus}]

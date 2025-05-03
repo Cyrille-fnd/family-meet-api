@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Presentation\Http\Rest\Controller;
 
+use App\Application\Command\Register\RegisterCommand;
 use App\Application\CommandBusInterface;
 use App\Application\DTO\RegisterInputDto;
-use App\Application\Register\RegisterCommand;
 use App\Domain\ValueObject\DateTimeImmutable;
 use App\Domain\ValueObject\Identity\UserId;
 use App\Domain\ValueObject\RegisterInformation;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Application\Register;
+namespace App\Application\Command\Register;
 
 use App\Application\CommandHandlerInterface;
 use App\Application\EventBusInterface;

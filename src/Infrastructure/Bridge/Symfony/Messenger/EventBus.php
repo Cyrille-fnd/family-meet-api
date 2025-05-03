@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Symfony\Bridge\Messenger;
+namespace App\Infrastructure\Bridge\Symfony\Messenger;
 
 use App\Application\EventBusInterface;
 use App\Application\EventInterface;

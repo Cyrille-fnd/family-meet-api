@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Symfony\Bridge\Doctrine\types;
+namespace App\Infrastructure\Bridge\Symfony\Doctrine\types;
 
 use App\Domain\ValueObject\DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;

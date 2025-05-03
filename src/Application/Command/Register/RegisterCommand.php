@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Application\Register;
+namespace App\Application\Command\Register;
 
 use App\Application\CommandInterface;
 use App\Domain\ValueObject\RegisterInformation;
