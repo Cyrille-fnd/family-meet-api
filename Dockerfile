@@ -24,6 +24,7 @@ RUN chmod +x /usr/local/bin/frankenphp; \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV SERVER_NAME="localhost"
 
 COPY . /app
 WORKDIR /app

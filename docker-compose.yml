@@ -16,7 +16,6 @@ services:
       - "443:443/udp" # HTTP/3
     environment:
       DATABASE_URL: mysql://user:password@db/familymeet?serverVersion=8.0.32&charset=utf8mb4
-      SERVER_NAME: api.family-meet.lan
     volumes:
       - caddy_data:/data
       - caddy_config:/config
