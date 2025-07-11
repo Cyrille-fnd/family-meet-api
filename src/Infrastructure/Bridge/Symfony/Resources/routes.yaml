@@ -15,3 +15,10 @@ get_user:
   methods: 'GET'
   format: 'json'
   controller: App\Presentation\Http\Rest\Controller\GetUserController
+
+get_users:
+  path: /api/v2/users
+  methods: 'GET'
+  format: 'json'
+  controller: App\Presentation\Http\Rest\Controller\GetUsersController
+
