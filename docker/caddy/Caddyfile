@@ -6,6 +6,7 @@
 {$SERVER_NAME:localhost} {
     root /app/public
     encode zstd br gzip
+    file_server
     php_server
     tls internal
 }

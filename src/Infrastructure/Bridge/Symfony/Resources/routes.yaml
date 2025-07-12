@@ -33,3 +33,9 @@ delete_user:
   methods: 'DELETE'
   format: 'json'
   controller: App\Presentation\Http\Rest\Controller\DeleteUserController
+
+upload_user_profile_picture:
+  path: /api/v2/users/{id}/upload
+  methods: 'POST'
+  format: 'json'
+  controller: App\Presentation\Http\Rest\Controller\UploadUserProfilePictureController

@@ -6,12 +6,15 @@
 parameters:
     app.event_nb_results_per_page: 10
     app.aws_s3_users_bucket_path: '%env(AWS_USERS_BUCKET_PATH)%'
+    public_directory: '%kernel.project_dir%/public'
 
 services:
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+          $publicDirectory: '%public_directory%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
