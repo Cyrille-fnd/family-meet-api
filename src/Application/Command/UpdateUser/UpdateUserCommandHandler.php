@@ -12,7 +12,7 @@ use App\Domain\Repository\UserRepositoryInterface;
 final readonly class UpdateUserCommandHandler implements CommandHandlerInterface
 {
     public function __construct(
-        private UserRepositoryInterface  $userRepository,
+        private UserRepositoryInterface $userRepository,
         private EventDispatcherInterface $bus,
     ) {
     }

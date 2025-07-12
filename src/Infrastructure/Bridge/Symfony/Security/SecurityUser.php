@@ -30,6 +30,8 @@ final readonly class SecurityUser implements UserInterface, PasswordAuthenticate
 
     public function getUserIdentifier(): string
     {
+        \assert('' !== $this->user->getEmail());
+
         return $this->user->getEmail();
     }
 }

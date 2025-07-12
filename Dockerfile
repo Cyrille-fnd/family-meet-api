@@ -1,10 +1,10 @@
-FROM dunglas/frankenphp:1-builder-php8.3-alpine AS builder
+FROM dunglas/frankenphp:1-builder-php8.4-alpine AS builder
 
 COPY --from=caddy:builder /usr/bin/xcaddy /usr/bin/xcaddy
 
 RUN CGO_ENABLED=1 \
     XCADDY_SETCAP=1 \
-    XCADDY_GO_BUILD_FLAGS="-ldflags='-w -s' -tags=nobadger,nomysql,nopgx" \
+    XCADDY_GO_BUILD_FLAGS=$'-ldflags "-w -s -extldflags \'-Wl,-z,stack-size=0x80000\'"' \
     CGO_CFLAGS=$(php-config --includes) \
     CGO_LDFLAGS="$(php-config --ldflags) $(php-config --libs)" \
     xcaddy build \
@@ -15,7 +15,7 @@ RUN CGO_ENABLED=1 \
         --with github.com/dunglas/mercure/caddy \
         --with github.com/dunglas/vulcain/caddy
 
-FROM dunglas/frankenphp:1-builder-php8.3-alpine AS runner
+FROM dunglas/frankenphp:1-builder-php8.4-alpine AS runner
 
 COPY --from=builder /usr/local/bin/frankenphp /usr/local/bin/frankenphp
 

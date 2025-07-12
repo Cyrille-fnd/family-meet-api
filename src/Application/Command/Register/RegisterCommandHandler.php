@@ -14,8 +14,8 @@ use App\Domain\Service\UserCreatorInterface;
 final readonly class RegisterCommandHandler implements CommandHandlerInterface
 {
     public function __construct(
-        private UserRepositoryInterface  $userRepository,
-        private UserCreatorInterface     $userCreator,
+        private UserRepositoryInterface $userRepository,
+        private UserCreatorInterface $userCreator,
         private EventDispatcherInterface $bus,
     ) {
     }
