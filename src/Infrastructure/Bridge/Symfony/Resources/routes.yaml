@@ -27,3 +27,9 @@ update_user:
   methods: 'PUT'
   format: 'json'
   controller: App\Presentation\Http\Rest\Controller\UpdateUserController
+
+delete_user:
+  path: /api/v2/users/{id}
+  methods: 'DELETE'
+  format: 'json'
+  controller: App\Presentation\Http\Rest\Controller\DeleteUserController

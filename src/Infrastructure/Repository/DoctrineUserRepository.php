@@ -45,4 +45,9 @@ final readonly class DoctrineUserRepository implements UserRepositoryInterface
     {
         $this->em->persist($user);
     }
+
+    public function remove(User $user): void
+    {
+        $this->em->remove($user);
+    }
 }
