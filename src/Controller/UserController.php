@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Domain\Entity\User;
-use App\Domain\ValueObject\DateTimeImmutable;
-use App\Domain\ValueObject\Sex;
 use Aws\S3\S3Client;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,42 +17,6 @@ use Symfony\Component\Uid\Uuid;
 
 final class UserController extends AbstractController
 {
-    #[Route('api/v2/users/{id}', name: 'api_v2_users_put', methods: ['PUT'])]
-    public function put(
-        User $user,
-        EntityManagerInterface $entityManager,
-        Request $request,
-    ): JsonResponse {
-        $content = $request->getContent();
-
-        /**
-         * @var array{
-         *      sex: string,
-         *      firstname: string,
-         *      lastname: string,
-         *      bio: string|null,
-         *      birthday: string,
-         *      city: string,
-         *      pictureUrl: string|null
-         * } $payload
-         */
-        $payload = json_decode($content, true);
-
-        $user
-            ->setSex(Sex::from($payload['sex']))
-            ->setFirstname($payload['firstname'])
-            ->setLastname($payload['lastname'])
-            ->setBio($payload['bio'])
-            ->setBirthday(DateTimeImmutable::fromString($payload['birthday']))
-            ->setUpdatedAt(DateTimeImmutable::create())
-            ->setCity($payload['city'])
-            ->setPictureUrl($payload['pictureUrl']);
-
-        $entityManager->flush();
-
-        return new JsonResponse($user->jsonSerialize());
-    }
-
     #[Route('api/v2/users/{id}/upload', name: 'api_v2_users_upload', methods: ['POST'])]
     public function patch(
         User $user,

@@ -22,3 +22,8 @@ get_users:
   format: 'json'
   controller: App\Presentation\Http\Rest\Controller\GetUsersController
 
+update_user:
+  path: /api/v2/users/{id}
+  methods: 'PUT'
+  format: 'json'
+  controller: App\Presentation\Http\Rest\Controller\UpdateUserController

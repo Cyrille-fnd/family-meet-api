@@ -18,7 +18,7 @@ class ExtendedDateTimeImmutableType extends DateTimeImmutableType
             throw new \InvalidArgumentException(\sprintf('Expected instance of %s, got %s', DateTimeImmutable::class, get_debug_type($value)));
         }
 
-        return $value->format($platform->getDateTimeFormatString());
+        return $value->toDateTime()->format($platform->getDateTimeFormatString());
     }
 
     public function convertToPHPValue($value, AbstractPlatform $platform): ?DateTimeImmutable

@@ -60,6 +60,24 @@ class User implements \JsonSerializable
         );
     }
 
+    public function update(
+        Sex $sex,
+        string $firstname,
+        string $lastname,
+        ?string $bio,
+        DateTimeImmutable $birthday,
+        DateTimeImmutable $updatedAt,
+        string $city,
+    ): void {
+        $this->sex = $sex;
+        $this->firstname = $firstname;
+        $this->lastname = $lastname;
+        $this->bio = $bio;
+        $this->birthday = $birthday;
+        $this->updatedAt = $updatedAt;
+        $this->city = $city;
+    }
+
     public function getId(): UserId
     {
         return $this->id;
