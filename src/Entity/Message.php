@@ -29,7 +29,7 @@ class Message implements \JsonSerializable
     #[ORM\Column(type: Types::TEXT)]
     private string $content;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: 'extended_datetime_immutable')]
     private DateTimeImmutable $createdAt;
 
     public function __construct(string $id)

@@ -53,13 +53,14 @@ fixtures:
 	$(EXEC_WWW) bin/console doctrine:fixtures:load -q
 
 init-db:
-	#make clean-db
-	$(EXEC_WWW) $(BIN_CONSOLE) --if-not-exists doctrine:database:create
+	$(EXEC_WWW) $(BIN_CONSOLE) --if-exists doctrine:database:drop --force
+	$(EXEC_WWW) $(BIN_CONSOLE) doctrine:database:create
 	$(EXEC_WWW) $(BIN_CONSOLE) doctrine:schema:create
 	$(EXEC_WWW) php -d memory_limit=999M $(BIN_CONSOLE) doctrine:fixtures:load -n
 
 init-db-test:
-	$(EXEC_WWW) $(BIN_CONSOLE) --env=test --if-not-exists doctrine:database:create
+	$(EXEC_WWW) $(BIN_CONSOLE) --env=test --if-exists doctrine:database:drop --force
+	$(EXEC_WWW) $(BIN_CONSOLE) --env=test doctrine:database:create
 	$(EXEC_WWW) $(BIN_CONSOLE) --env=test doctrine:schema:create
 	$(EXEC_WWW) php -d memory_limit=999M $(BIN_CONSOLE) --env=test doctrine:fixtures:load -n
 
