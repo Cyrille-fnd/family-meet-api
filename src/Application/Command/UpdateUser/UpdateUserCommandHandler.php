@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace App\Application\Command\UpdateUser;
 
 use App\Application\CommandHandlerInterface;
-use App\Application\EventBusInterface;
+use App\Application\EventDispatcherInterface;
 use App\Domain\Event\UserUpdatedEvent;
 use App\Domain\Repository\UserRepositoryInterface;
 
 final readonly class UpdateUserCommandHandler implements CommandHandlerInterface
 {
     public function __construct(
-        private UserRepositoryInterface $userRepository,
-        private EventBusInterface $bus,
+        private UserRepositoryInterface  $userRepository,
+        private EventDispatcherInterface $bus,
     ) {
     }
 

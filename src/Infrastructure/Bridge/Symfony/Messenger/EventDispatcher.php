@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Bridge\Symfony\Messenger;
 
-use App\Application\EventBusInterface;
+use App\Application\EventDispatcherInterface;
 use App\Application\EventInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-final readonly class EventBus implements EventBusInterface
+final readonly class EventDispatcher implements EventDispatcherInterface
 {
-    public function __construct(private MessageBusInterface $messageBus)
+    public function __construct(private MessageBusInterface $eventBus)
     {
     }
 
     public function dispatch(EventInterface $event): void
     {
-        $this->messageBus->dispatch($event);
+        $this->eventBus->dispatch($event);
     }
 }

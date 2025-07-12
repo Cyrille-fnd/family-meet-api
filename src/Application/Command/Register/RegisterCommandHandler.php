@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Command\Register;
 
 use App\Application\CommandHandlerInterface;
-use App\Application\EventBusInterface;
+use App\Application\EventDispatcherInterface;
 use App\Domain\Event\UserRegisteredEvent;
 use App\Domain\Exception\UserAlreadyExistsException;
 use App\Domain\Repository\UserRepositoryInterface;
@@ -14,9 +14,9 @@ use App\Domain\Service\UserCreatorInterface;
 final readonly class RegisterCommandHandler implements CommandHandlerInterface
 {
     public function __construct(
-        private UserRepositoryInterface $userRepository,
-        private UserCreatorInterface $userCreator,
-        private EventBusInterface $bus,
+        private UserRepositoryInterface  $userRepository,
+        private UserCreatorInterface     $userCreator,
+        private EventDispatcherInterface $bus,
     ) {
     }
 
