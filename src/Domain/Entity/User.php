@@ -60,6 +60,27 @@ class User implements \JsonSerializable
         );
     }
 
+    /**
+     * @param string[] $data
+     */
+    public static function fromArray(array $data): self
+    {
+        return self::create(
+            id: new UserId($data['id']),
+            email: $data['email'],
+            password: $data['password'],
+            sex: Sex::from($data['sex']),
+            firstname: $data['firstname'],
+            lastname: $data['lastname'],
+            bio: $data['bio'] ?? null,
+            birthday: new DateTimeImmutable($data['birthday']),
+            createdAt: new DateTimeImmutable($data['createdAt']),
+            updatedAt: new DateTimeImmutable($data['updatedAt']),
+            city: $data['city'],
+            pictureUrl: $data['pictureUrl'] ?? null,
+        );
+    }
+
     public function update(
         Sex $sex,
         string $firstname,

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
-use App\Entity\Meet;
+use App\Domain\Entity\Meet;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -53,18 +53,23 @@ class MeetRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    /**
-     * @return Meet[]
-     */
-    public function findByPage(int $page): array
-    {
-        $offset = ($page * $this->nbResultsPerPage) - $this->nbResultsPerPage;
+    //    /**
+    //     * @return Meet[]
+    //     */
+    //    public function findByPage(int $page): array
+    //    {
+    //        $offset = ($page * $this->nbResultsPerPage) - $this->nbResultsPerPage;
+    //
+    //        return $this->createQueryBuilder('meet')
+    //            ->setMaxResults($this->nbResultsPerPage)
+    //            ->setFirstResult($offset)
+    //            ->getQuery()
+    //            ->getResult()
+    //        ;
+    //    }
 
-        return $this->createQueryBuilder('meet')
-            ->setMaxResults($this->nbResultsPerPage)
-            ->setFirstResult($offset)
-            ->getQuery()
-            ->getResult()
-        ;
+    public function nbResultsPerPage(): int
+    {
+        return $this->nbResultsPerPage;
     }
 }

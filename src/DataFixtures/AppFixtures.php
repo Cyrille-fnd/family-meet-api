@@ -4,18 +4,22 @@ declare(strict_types=1);
 
 namespace App\DataFixtures;
 
+use App\Domain\Entity\Guest;
+use App\Domain\Entity\Host;
+use App\Domain\Entity\Meet;
 use App\Domain\Entity\User;
 use App\Domain\Service\UserCreatorInterface;
 use App\Domain\ValueObject\Category;
 use App\Domain\ValueObject\DateTimeImmutable;
 use App\Domain\ValueObject\Identity\ChatId;
+use App\Domain\ValueObject\Identity\GuestId;
+use App\Domain\ValueObject\Identity\HostId;
 use App\Domain\ValueObject\Identity\MeetId;
 use App\Domain\ValueObject\Identity\MessageId;
 use App\Domain\ValueObject\Identity\UserId;
 use App\Domain\ValueObject\RegisterInformation;
 use App\Domain\ValueObject\Sex;
 use App\Entity\Chat;
-use App\Entity\Meet;
 use App\Entity\Message;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -137,76 +141,25 @@ final class AppFixtures extends Fixture
         $manager->persist($chatClub);
 
         $meetRaclette = Meet::create(
-            id: MeetId::create()->value(),
+            id: MeetId::create(),
             title: 'Raclette chez Cyrille',
             description: $this->faker->sentence(50),
             location: 'Chez Cyrille',
-            date: $this->faker->dateTimeBetween('now', '+1 years'),
+            date: DateTimeImmutable::fromDateTime($this->faker->dateTimeBetween('now', '+1 years')),
             category: Category::RESTAURANT,
             maxGuests: 6,
-            host: $userCyrille,
+            createdAt: DateTimeImmutable::create(),
+            updatedAt: DateTimeImmutable::create(),
             chat: $chatRaclette,
         );
 
+        $hostMeetRaclette = Host::create(HostId::create(), $userCyrille, $meetRaclette);
+        $meetRaclette->setHost($hostMeetRaclette);
+
         $meetRaclette
-            ->addGuest($userMelinda)
-            ->addGuest($userGeoffrey);
+            ->addGuest(Guest::create(GuestId::create(), $userMelinda, $meetRaclette))
+            ->addGuest(Guest::create(GuestId::create(), $userGeoffrey, $meetRaclette));
         $manager->persist($meetRaclette);
-
-        $meetFive = Meet::create(
-            id: MeetId::create()->value(),
-            title: 'Five à Créteil',
-            description: $this->faker->sentence(50),
-            location: '2 rue des poireaux, 94000 Créteil',
-            date: $this->faker->dateTimeBetween('now', '+1 years'),
-            category: Category::SPORT,
-            maxGuests: 5,
-            host: $userDimitri,
-            chat: $chatFive,
-        );
-
-        $meetFive
-            ->addGuest($userMelinda)
-            ->addGuest($userGeoffrey);
-        $manager->persist($meetFive);
-
-        $meetJeux = Meet::create(
-            id: MeetId::create()->value(),
-            title: 'Jeux de sociétés',
-            description: $this->faker->sentence(50),
-            location: '15 rue du Commerce, 94310 Orly',
-            date: $this->faker->dateTimeBetween('now', '+1 years'),
-            category: Category::JEUX,
-            maxGuests: 4,
-            host: $userIngrid,
-            chat: $chatJeux,
-        );
-
-        $meetJeux
-            ->addGuest($userMelinda);
-        $manager->persist($meetJeux);
-
-        $meetClubbing = Meet::create(
-            id: MeetId::create()->value(),
-            title: 'Danser à la Favela',
-            description: $this->faker->sentence(50),
-            location: '15 rue du Faubourg du temple, 75010 Paris',
-            date: $this->faker->dateTimeBetween('now', '+1 years'),
-            category: Category::CLUBBING,
-            maxGuests: 4,
-            host: $userMelinda,
-            chat: $chatClub,
-        );
-        $manager->persist($meetClubbing);
-
-        $messageRaclette = Message::create(MessageId::create()->value());
-        $messageRaclette
-            ->setAuthor($userDimitri)
-            ->setContent('Trop hate de me régaler !!')
-            ->setCreatedAt(DateTimeImmutable::create())
-            ->setChat($chatRaclette);
-        $manager->persist($messageRaclette);
-        $manager->flush();
 
         $users = [];
         for ($i = 0; $i <= 3; ++$i) {
@@ -248,20 +201,24 @@ final class AppFixtures extends Fixture
             $meetCategory = $this->faker->randomElement(Category::class);
 
             $meet = Meet::create(
-                id: MeetId::create()->value(),
+                id: MeetId::create(),
                 title: $this->faker->sentence(7),
                 description: $this->faker->sentence(50),
                 location: $this->faker->address(),
-                date: $this->faker->dateTimeBetween('now', '+1 years'),
+                date: DateTimeImmutable::fromDateTime($this->faker->dateTimeBetween('now', '+1 years')),
                 category: $meetCategory,
                 maxGuests: 4,
-                host: $host,
+                createdAt: DateTimeImmutable::create(),
+                updatedAt: DateTimeImmutable::create(),
                 chat: $chat,
             );
             $manager->persist($meet);
 
+            $hostMeet = Host::create(HostId::create(), $host, $meet);
+            $meet->setHost($hostMeet);
+
             foreach ($guests as $guest) {
-                $meet->addGuest($guest);
+                $meet->addGuest(Guest::create(GuestId::create(), $guest, $meet));
                 $chat->addChatter($guest);
             }
 

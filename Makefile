@@ -64,6 +64,12 @@ init-db-test:
 	$(EXEC_WWW) $(BIN_CONSOLE) --env=test doctrine:schema:create
 	$(EXEC_WWW) php -d memory_limit=999M $(BIN_CONSOLE) --env=test doctrine:fixtures:load -n
 
+migration-generate:
+	$(EXEC_WWW) $(BIN_CONSOLE) doctrine:migrations:diff
+
+migration-migrate:
+	$(EXEC_WWW) $(BIN_CONSOLE) doctrine:migrations:migrate -n
+
 bin-install:
 	$(EXEC_WWW) composer bin all install -n --prefer-dist
 

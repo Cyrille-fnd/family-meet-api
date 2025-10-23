@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Domain\Entity\Meet;
 use App\Domain\Entity\User;
-use App\Entity\Meet;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,33 +21,33 @@ final class JoinController extends AbstractController
         string $userId,
         EntityManagerInterface $entityManager,
     ): JsonResponse {
-        $meet = $entityManager->getRepository(Meet::class)->find($meetId);
-
-        if (null === $meet) {
-            return new JsonResponse(
-                [
-                    'code' => 'meet_not_found',
-                    'message' => 'meet not found',
-                ],
-                Response::HTTP_NOT_FOUND
-            );
-        }
-
-        $user = $entityManager->getRepository(User::class)->find(Uuid::fromString($userId));
-
-        if (null === $user) {
-            return new JsonResponse(
-                [
-                    'code' => 'user_not_found',
-                    'message' => 'user not found',
-                ],
-                Response::HTTP_NOT_FOUND
-            );
-        }
-
-        $meet->addGuest($user);
-        $meet->getChat()->addChatter($user);
-        $entityManager->flush();
+        //        $meet = $entityManager->getRepository(Meet::class)->find($meetId);
+        //
+        //        if (null === $meet) {
+        //            return new JsonResponse(
+        //                [
+        //                    'code' => 'meet_not_found',
+        //                    'message' => 'meet not found',
+        //                ],
+        //                Response::HTTP_NOT_FOUND
+        //            );
+        //        }
+        //
+        //        $guest = $entityManager->getRepository(User::class)->find(Uuid::fromString($userId));
+        //
+        //        if (null === $user) {
+        //            return new JsonResponse(
+        //                [
+        //                    'code' => 'user_not_found',
+        //                    'message' => 'user not found',
+        //                ],
+        //                Response::HTTP_NOT_FOUND
+        //            );
+        //        }
+        //
+        //        $meet->addGuest($user);
+        //        $meet->getChat()->addChatter($user);
+        //        $entityManager->flush();
 
         return new JsonResponse();
     }
@@ -58,33 +58,33 @@ final class JoinController extends AbstractController
         string $userId,
         EntityManagerInterface $entityManager,
     ): JsonResponse {
-        $meet = $entityManager->getRepository(Meet::class)->find($meetId);
-
-        if (null === $meet) {
-            return new JsonResponse(
-                [
-                    'code' => 'meet_not_found',
-                    'message' => 'meet not found',
-                ],
-                Response::HTTP_NOT_FOUND
-            );
-        }
-
-        $user = $entityManager->getRepository(User::class)->find(Uuid::fromString($userId));
-
-        if (null === $user) {
-            return new JsonResponse(
-                [
-                    'code' => 'user_not_found',
-                    'message' => 'user not found',
-                ],
-                Response::HTTP_NOT_FOUND
-            );
-        }
-
-        $meet->removeGuest($user);
-        $entityManager->flush();
-
+        //        $meet = $entityManager->getRepository(Meet::class)->find($meetId);
+        //
+        //        if (null === $meet) {
+        //            return new JsonResponse(
+        //                [
+        //                    'code' => 'meet_not_found',
+        //                    'message' => 'meet not found',
+        //                ],
+        //                Response::HTTP_NOT_FOUND
+        //            );
+        //        }
+        //
+        //        $user = $entityManager->getRepository(User::class)->find(Uuid::fromString($userId));
+        //
+        //        if (null === $user) {
+        //            return new JsonResponse(
+        //                [
+        //                    'code' => 'user_not_found',
+        //                    'message' => 'user not found',
+        //                ],
+        //                Response::HTTP_NOT_FOUND
+        //            );
+        //        }
+        //
+        //        $meet->removeGuest($user);
+        //        $entityManager->flush();
+        //
         return new JsonResponse();
     }
 }

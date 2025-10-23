@@ -1,0 +1,32 @@
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                                      https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Domain\Entity\Meet">
+        <id name="id" type="meet_id" />
+
+        <field name="title" length="255"/>
+        <field name="description" type="text" nullable="true"/>
+        <field name="location" length="255"/>
+        <field name="date" type="extended_datetime_immutable"/>
+        <field name="createdAt" type="extended_datetime_immutable"/>
+        <field name="updatedAt" type="extended_datetime_immutable"/>
+        <field name="category" length="255"/>
+        <field name="maxGuests" type="integer"/>
+
+        <one-to-one field="host" target-entity="App\Domain\Entity\Host">
+        </one-to-one>
+
+        <one-to-many field="guests" target-entity="App\Domain\Entity\Guest" mapped-by="meet">
+        </one-to-many>
+
+        <one-to-one field="chat" target-entity="App\Entity\Chat">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
+            <join-column name="chat_id" nullable="false"/>
+        </one-to-one>
+    </entity>
+</doctrine-mapping>

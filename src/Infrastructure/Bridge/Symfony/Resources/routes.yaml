@@ -39,3 +39,9 @@ upload_user_profile_picture:
   methods: 'POST'
   format: 'json'
   controller: App\Presentation\Http\Rest\Controller\UploadUserProfilePictureController
+
+create_meet:
+  path: /api/v2/meets
+  methods: 'POST'
+  format: 'json'
+  controller: App\Presentation\Http\Rest\Controller\CreateMeetController

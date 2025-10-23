@@ -10,6 +10,10 @@ doctrine:
         types:
             extended_datetime_immutable: App\Infrastructure\Bridge\Symfony\Doctrine\types\ExtendedDateTimeImmutableType
             user_id: App\Infrastructure\Bridge\Symfony\Doctrine\types\UserIdType
+            meet_id: App\Infrastructure\Bridge\Symfony\Doctrine\types\MeetIdType
+            guest_id: App\Infrastructure\Bridge\Symfony\Doctrine\types\GuestIdType
+            host_id: App\Infrastructure\Bridge\Symfony\Doctrine\types\HostIdType
+            category: App\Infrastructure\Bridge\Symfony\Doctrine\types\CategoryType
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true

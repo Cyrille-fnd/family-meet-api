@@ -1,6 +1,1 @@
-parameters:
-	ignoreErrors:
-		-
-			message: "#^Method App\\\\Repository\\\\MeetRepository\\:\\:findByPage\\(\\) should return array\\<App\\\\Entity\\\\Meet\\> but returns mixed\\.$#"
-			count: 1
-			path: src/Repository/MeetRepository.php
+
