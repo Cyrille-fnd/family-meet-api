@@ -11,16 +11,14 @@ final class Host
     public function __construct(
         private HostId $id,
         private User $user,
-        private Meet $meet,
     ) {
     }
 
-    public static function create(HostId $id, User $user, Meet $meet): self
+    public static function create(HostId $id, User $user): self
     {
         return new self(
             id: $id,
             user: $user,
-            meet: $meet,
         );
     }
 
@@ -32,10 +30,5 @@ final class Host
     public function user(): User
     {
         return $this->user;
-    }
-
-    public function meet(): Meet
-    {
-        return $this->meet;
     }
 }

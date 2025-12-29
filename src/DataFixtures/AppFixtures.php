@@ -151,10 +151,8 @@ final class AppFixtures extends Fixture
             createdAt: DateTimeImmutable::create(),
             updatedAt: DateTimeImmutable::create(),
             chat: $chatRaclette,
+            host: Host::create(HostId::create(), $userCyrille)
         );
-
-        $hostMeetRaclette = Host::create(HostId::create(), $userCyrille, $meetRaclette);
-        $meetRaclette->setHost($hostMeetRaclette);
 
         $meetRaclette
             ->addGuest(Guest::create(GuestId::create(), $userMelinda, $meetRaclette))
@@ -211,11 +209,9 @@ final class AppFixtures extends Fixture
                 createdAt: DateTimeImmutable::create(),
                 updatedAt: DateTimeImmutable::create(),
                 chat: $chat,
+                host: Host::create(HostId::create(), $host)
             );
             $manager->persist($meet);
-
-            $hostMeet = Host::create(HostId::create(), $host, $meet);
-            $meet->setHost($hostMeet);
 
             foreach ($guests as $guest) {
                 $meet->addGuest(Guest::create(GuestId::create(), $guest, $meet));

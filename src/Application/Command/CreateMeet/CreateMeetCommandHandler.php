@@ -40,10 +40,8 @@ final readonly class CreateMeetCommandHandler implements CommandHandlerInterface
             createdAt: DateTimeImmutable::create(),
             updatedAt: DateTimeImmutable::create(),
             chat: Chat::create(ChatId::create()->value()),
+            host: Host::create(HostId::create(), $host),
         );
-
-        $host = Host::create(HostId::create(), $host, $meet);
-        $meet->setHost($host);
 
         $this->meetRepository->save($meet);
 

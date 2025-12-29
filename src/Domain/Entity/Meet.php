@@ -28,7 +28,7 @@ class Meet
         private DateTimeImmutable $createdAt,
         private DateTimeImmutable $updatedAt,
         private Chat $chat,
-        private ?Host $host,
+        private Host $host,
     ) {
     }
 
@@ -43,7 +43,7 @@ class Meet
         DateTimeImmutable $createdAt,
         DateTimeImmutable $updatedAt,
         Chat $chat,
-        ?Host $host = null,
+        Host $host,
     ): self {
         return new self(
             id: $id,
@@ -66,7 +66,7 @@ class Meet
         return $this->id;
     }
 
-    public function host(): ?Host
+    public function host(): Host
     {
         return $this->host;
     }

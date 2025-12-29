@@ -16,9 +16,17 @@
         <field name="maxGuests" type="integer"/>
 
         <one-to-one field="host" target-entity="App\Domain\Entity\Host">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
         </one-to-one>
 
         <one-to-many field="guests" target-entity="App\Domain\Entity\Guest" mapped-by="meet">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
         </one-to-many>
 
         <one-to-one field="chat" target-entity="App\Entity\Chat">
