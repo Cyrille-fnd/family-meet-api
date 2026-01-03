@@ -11,16 +11,16 @@ use App\Entity\Chat;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
-class Meet
+class Meet implements \JsonSerializable
 {
     public function __construct(
         private MeetId $id,
-        public string $title,
-        public string $description,
-        public string $location,
-        public DateTimeImmutable $date,
-        public Category $category,
-        public int $maxGuests,
+        private string $title,
+        private string $description,
+        private string $location,
+        private DateTimeImmutable $date,
+        private Category $category,
+        private int $maxGuests,
         /**
          * @var Collection<int, Guest>
          */
@@ -145,5 +145,21 @@ class Meet
     public function chat(): Chat
     {
         return $this->chat;
+    }
+
+    /**
+     * @return array<string, int|string>
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->id()->value(),
+            'title' => $this->title(),
+            'description' => $this->description(),
+            'location' => $this->location(),
+            'date' => $this->date()->format('Y-m-d H:i:s'),
+            'category' => $this->category()->value,
+            'maxGuests' => $this->maxGuests(),
+        ];
     }
 }

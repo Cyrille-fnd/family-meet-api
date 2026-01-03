@@ -45,3 +45,9 @@ create_meet:
   methods: 'POST'
   format: 'json'
   controller: App\Presentation\Http\Rest\Controller\CreateMeetController
+
+get_meet:
+  path: /api/v2/meets/{id}
+  methods: 'GET'
+  format: 'json'
+  controller: App\Presentation\Http\Rest\Controller\GetMeetController

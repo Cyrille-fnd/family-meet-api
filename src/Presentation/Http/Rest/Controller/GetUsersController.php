@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Presentation\Http\Rest\Controller;
 
-use App\Application\Query\User\GetUsersQuery;
+use App\Application\Query\User\GetUsers\GetUsersQuery;
 use App\Application\QueryBusInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;

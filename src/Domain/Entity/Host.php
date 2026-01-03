@@ -6,7 +6,7 @@ namespace App\Domain\Entity;
 
 use App\Domain\ValueObject\Identity\HostId;
 
-final class Host
+class Host
 {
     public function __construct(
         private HostId $id,

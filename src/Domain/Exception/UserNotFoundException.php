@@ -10,7 +10,7 @@ class UserNotFoundException extends \Exception
 {
     public static function fromId(UserId $id): self
     {
-        return new self(\sprintf('Meet with Id <%s> not found', $id->value()));
+        return new self(\sprintf('User with Id <%s> not found', $id->value()));
     }
 
     public static function fromEmail(string $email): self

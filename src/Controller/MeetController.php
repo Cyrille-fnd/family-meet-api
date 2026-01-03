@@ -171,27 +171,6 @@ final class MeetController extends AbstractController
         return new JsonResponse();
     }
 
-    #[Route('/api/v2/meets/{id}', name: 'api_v2_meets_get_by_id', methods: ['GET'])]
-    public function getById(
-        string $id,
-        EntityManagerInterface $entityManager,
-    ): JsonResponse {
-        //        $meet = $entityManager->getRepository(Meet::class)->find($id);
-        //
-        //        if (null === $meet) {
-        //            return new JsonResponse(
-        //                [
-        //                    'code' => 'meet_not_found',
-        //                    'message' => 'meet not found',
-        //                ],
-        //                Response::HTTP_NOT_FOUND
-        //            );
-        //        }
-        //
-        //        return new JsonResponse($meet->jsonSerialize());
-        return new JsonResponse();
-    }
-
     #[Route('/api/v2/meets/{id}', name: 'api_v2_meets_put', methods: ['PUT'])]
     public function put(
         string $id,
