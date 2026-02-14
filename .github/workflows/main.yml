@@ -1,17 +1,20 @@
-name: Deploy back-end
+name: CI
 on:
   push:
     branches:
       - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   run-tests:
     name: Run Test Suite
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ github.ref }}
+      - uses: actions/checkout@v4
+
       - name: Generate JWT Keys
         run: |
           mkdir -p config/jwt
@@ -23,10 +26,10 @@ jobs:
 
       - name: "Determine composer cache directory"
         id: "determine-composer-cache-directory"
-        run: "echo \"::set-output name=directory::$(composer config cache-dir)\""
+        run: echo "directory=$(composer config cache-dir)" >> "$GITHUB_OUTPUT"
 
       - name: "Cache dependencies installed with composer"
-        uses: "actions/cache@v3"
+        uses: "actions/cache@v4"
         with:
           path: "${{ steps.determine-composer-cache-directory.outputs.directory }}"
           key: "php-composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}"
@@ -38,8 +41,13 @@ jobs:
       - name: "Start container"
         run: "make start"
 
-      - name: "Sleep to give mysql container time to be ready"
-        run: sleep 25s
+      - name: "Wait for MySQL to be ready"
+        run: |
+          for i in $(seq 1 30); do
+            docker compose exec db mysqladmin ping -h 127.0.0.1 -u root -ppassword --silent && break
+            echo "Waiting for MySQL... ($i/30)"
+            sleep 2
+          done
 
       - name: "Install dependencies"
         run: "make composer-install"
