@@ -24,6 +24,11 @@ final readonly class SecurityUser implements UserInterface, PasswordAuthenticate
         return $this->user->getRoles();
     }
 
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
     public function eraseCredentials(): void
     {
     }

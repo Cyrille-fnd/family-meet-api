@@ -10,6 +10,12 @@ register:
   format: 'json'
   controller: App\Presentation\Http\Rest\Controller\RegisterController
 
+get_me:
+  path: /api/v2/users/me
+  methods: 'GET'
+  format: 'json'
+  controller: App\Presentation\Http\Rest\Controller\GetMeController
+
 get_user:
   path: /api/v2/users/{id}
   methods: 'GET'
