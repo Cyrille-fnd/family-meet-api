@@ -6,7 +6,7 @@ services:
   frankenphp:
     build:
       context: .
-      target: runner
+      target: runner_prod
     restart: unless-stopped
     ports:
       - "443:443"
@@ -17,6 +17,7 @@ services:
     volumes:
       - caddy_data:/data
       - caddy_config:/config
+      - ./docker/caddy/prod/Caddyfile:/etc/caddy/Caddyfile:ro
     networks:
       - familymeet
 

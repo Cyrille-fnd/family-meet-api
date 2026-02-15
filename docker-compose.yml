@@ -8,7 +8,7 @@ services:
   frankenphp:
     build:
       context: .
-      target: runner
+      target: runner_dev
     # uncomment the following line if you want to run this in a production environment
     # restart: always
     ports:
@@ -17,7 +17,7 @@ services:
     volumes:
       - caddy_data:/data
       - caddy_config:/config
-      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./docker/caddy/dev/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./public:/app/public
       - ./src:/app/src
       - ./tests:/app/tests

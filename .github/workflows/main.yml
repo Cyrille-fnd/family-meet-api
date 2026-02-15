@@ -72,4 +72,4 @@ jobs:
           script: |
             cd ${{ secrets.HETZNER_VPS_PROJECT_PATH }}
             git pull origin main
-            docker compose -f docker-compose.yml up -d --build --remove-orphans
+            docker compose -f docker-compose-prod.yml up -d --build --remove-orphans

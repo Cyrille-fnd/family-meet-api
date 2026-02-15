@@ -1,0 +1,12 @@
+{
+    debug
+    frankenphp
+}
+
+api-family-meet.org {
+    root /app/public
+    encode zstd br gzip
+    file_server
+    php_server
+    tls api-family-meet.org
+}

@@ -15,7 +15,7 @@ RUN CGO_ENABLED=1 \
         --with github.com/dunglas/mercure/caddy \
         --with github.com/dunglas/vulcain/caddy
 
-FROM dunglas/frankenphp:1-builder-php8.4-alpine AS runner
+FROM dunglas/frankenphp:1-builder-php8.4-alpine AS runner_dev
 
 COPY --from=builder /usr/local/bin/frankenphp /usr/local/bin/frankenphp
 
@@ -25,6 +25,20 @@ RUN chmod +x /usr/local/bin/frankenphp; \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV SERVER_NAME="localhost"
+
+COPY . /app
+WORKDIR /app
+
+FROM dunglas/frankenphp:1-builder-php8.4-alpine AS runner_prod
+
+COPY --from=builder /usr/local/bin/frankenphp /usr/local/bin/frankenphp
+
+RUN chmod +x /usr/local/bin/frankenphp; \
+    install-php-extensions mysqli mysqlnd pdo pdo_mysql zip
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV SERVER_NAME="api-family-meet.org"
 
 COPY . /app
 WORKDIR /app
