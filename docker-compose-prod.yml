@@ -12,8 +12,6 @@ services:
       - "443:443"
       - "443:443/udp"
       - "80:80"
-    environment:
-      SERVER_NAME: api-family-meet.cloud
     volumes:
       - caddy_data:/data
       - caddy_config:/config

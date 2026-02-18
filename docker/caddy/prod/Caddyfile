@@ -1,12 +1,13 @@
 {
-    debug
     frankenphp
 }
 
 api-family-meet.org {
+    log {
+        output stdout
+    }
     root /app/public
     encode zstd br gzip
     file_server
     php_server
-    tls api-family-meet.org
 }

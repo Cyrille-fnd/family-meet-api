@@ -71,5 +71,6 @@ jobs:
           key: ${{ secrets.HETZNER_VPS_SSH_KEY }}
           script: |
             cd ${{ secrets.HETZNER_VPS_PROJECT_PATH }}
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
             docker compose -f docker-compose-prod.yml up -d --build --remove-orphans

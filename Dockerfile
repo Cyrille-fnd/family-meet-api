@@ -38,7 +38,9 @@ RUN chmod +x /usr/local/bin/frankenphp; \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV APP_ENV=prod
 ENV SERVER_NAME="api-family-meet.org"
 
 COPY . /app
 WORKDIR /app
+RUN composer install --no-dev --optimize-autoloader
