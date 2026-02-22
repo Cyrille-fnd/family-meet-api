@@ -1,6 +1,10 @@
 #!/bin/sh
 set -e
 
+# Installer les dépendances
+echo "Installing dependencies..."
+composer install --optimize-autoloader
+
 # Attendre la base de données
 echo "Waiting for database..."
 until php bin/console dbal:run-sql -q "SELECT 1" 2>/dev/null; do

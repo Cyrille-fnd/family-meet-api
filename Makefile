@@ -76,6 +76,9 @@ bin-install:
 composer-install:
 	$(EXEC_WWW) composer install
 
+composer-install-prod:
+	$(EXEC_WWW) composer install --no-dev --optimize-autoloader
+
 composer-validate:
 	$(EXEC_WWW) composer validate
 
