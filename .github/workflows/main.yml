@@ -81,5 +81,3 @@ jobs:
             DATABASE_URL=mysql://${{ secrets.MYSQL_USER }}:${{ secrets.MYSQL_PASSWORD }}@db/${{ secrets.MYSQL_DATABASE }}?serverVersion=8.0.32&charset=utf8mb4
             EOF
             docker compose -f docker-compose-prod.yml up -d --build --remove-orphans
-            sleep 5
-            docker compose -f docker-compose-prod.yml exec frankenphp bin/console doctrine:migrations:migrate --no-interaction
