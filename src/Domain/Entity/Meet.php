@@ -142,6 +142,24 @@ class Meet implements \JsonSerializable
         return $this->updatedAt;
     }
 
+    public function update(
+        string $title,
+        string $description,
+        string $location,
+        DateTimeImmutable $date,
+        Category $category,
+        int $maxGuests,
+        DateTimeImmutable $updatedAt,
+    ): void {
+        $this->title = $title;
+        $this->description = $description;
+        $this->location = $location;
+        $this->date = $date;
+        $this->category = $category;
+        $this->maxGuests = $maxGuests;
+        $this->updatedAt = $updatedAt;
+    }
+
     public function chat(): Chat
     {
         return $this->chat;

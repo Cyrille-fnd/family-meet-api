@@ -3,10 +3,9 @@
     frankenphp
 }
 
-{$SERVER_NAME:localhost} {
+:80 {
     root /app/public
     encode zstd br gzip
     file_server
     php_server
-    tls internal
 }

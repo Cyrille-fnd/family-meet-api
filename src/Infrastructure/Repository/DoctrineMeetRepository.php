@@ -28,8 +28,18 @@ final readonly class DoctrineMeetRepository implements MeetRepositoryInterface
         return $meet;
     }
 
+    public function findAll(int $page = 1, int $limit = 10): array
+    {
+        return $this->entityManager->getRepository(Meet::class)->findBy([], null, $limit, ($page - 1) * $limit);
+    }
+
     public function save(Meet $meet): void
     {
         $this->entityManager->persist($meet);
+    }
+
+    public function remove(Meet $meet): void
+    {
+        $this->entityManager->remove($meet);
     }
 }

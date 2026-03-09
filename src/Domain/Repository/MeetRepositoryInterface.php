@@ -11,5 +11,10 @@ interface MeetRepositoryInterface
 {
     public function get(MeetId $id): Meet;
 
+    /** @return Meet[] */
+    public function findAll(int $page, int $limit): array;
+
     public function save(Meet $meet): void;
+
+    public function remove(Meet $meet): void;
 }

@@ -52,8 +52,26 @@ create_meet:
   format: 'json'
   controller: App\Presentation\Http\Rest\Controller\CreateMeetController
 
+get_meets:
+  path: /api/v2/meets
+  methods: 'GET'
+  format: 'json'
+  controller: App\Presentation\Http\Rest\Controller\GetMeetsController
+
 get_meet:
   path: /api/v2/meets/{id}
   methods: 'GET'
   format: 'json'
   controller: App\Presentation\Http\Rest\Controller\GetMeetController
+
+update_meet:
+  path: /api/v2/meets/{id}
+  methods: 'PUT'
+  format: 'json'
+  controller: App\Presentation\Http\Rest\Controller\UpdateMeetController
+
+delete_meet:
+  path: /api/v2/meets/{id}
+  methods: 'DELETE'
+  format: 'json'
+  controller: App\Presentation\Http\Rest\Controller\DeleteMeetController
