@@ -75,3 +75,9 @@ delete_meet:
   methods: 'DELETE'
   format: 'json'
   controller: App\Presentation\Http\Rest\Controller\DeleteMeetController
+
+add_guest:
+  path: /api/v2/meets/{id}/guests
+  methods: 'POST'
+  format: 'json'
+  controller: App\Presentation\Http\Rest\Controller\AddGuestController
