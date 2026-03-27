@@ -15,12 +15,9 @@
         <field name="category" length="255"/>
         <field name="maxGuests" type="integer"/>
 
-        <one-to-one field="host" target-entity="App\Domain\Entity\Host">
-            <cascade>
-                <cascade-persist/>
-                <cascade-remove/>
-            </cascade>
-        </one-to-one>
+        <many-to-one field="host" target-entity="App\Domain\Entity\User">
+            <join-column name="host_user_id" nullable="false"/>
+        </many-to-one>
 
         <one-to-many field="guests" target-entity="App\Domain\Entity\Guest" mapped-by="meet">
             <cascade>

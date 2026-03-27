@@ -28,7 +28,7 @@ class Meet implements \JsonSerializable
         private DateTimeImmutable $createdAt,
         private DateTimeImmutable $updatedAt,
         private Chat $chat,
-        private Host $host,
+        private User $host,
     ) {
     }
 
@@ -43,7 +43,7 @@ class Meet implements \JsonSerializable
         DateTimeImmutable $createdAt,
         DateTimeImmutable $updatedAt,
         Chat $chat,
-        Host $host,
+        User $host,
     ): self {
         return new self(
             id: $id,
@@ -66,14 +66,9 @@ class Meet implements \JsonSerializable
         return $this->id;
     }
 
-    public function host(): Host
+    public function host(): User
     {
         return $this->host;
-    }
-
-    public function setHost(Host $host): void
-    {
-        $this->host = $host;
     }
 
     public function title(): string
@@ -118,6 +113,7 @@ class Meet implements \JsonSerializable
     {
         if (!$this->guests->contains($guest)) {
             $this->guests->add($guest);
+            $guest->setMeet($this);
         }
 
         return $this;
@@ -166,7 +162,7 @@ class Meet implements \JsonSerializable
     }
 
     /**
-     * @return array<string, int|string>
+     * @return array<string, array<int|string, array<string, string|null>|string|null>|int|string>
      */
     public function jsonSerialize(): array
     {
@@ -178,6 +174,17 @@ class Meet implements \JsonSerializable
             'date' => $this->date()->format('Y-m-d H:i:s'),
             'category' => $this->category()->value,
             'maxGuests' => $this->maxGuests(),
+            'host' => [
+                'id' => $this->host->getId()->value(),
+                'firstname' => $this->host->getFirstname(),
+                'lastname' => $this->host->getLastname(),
+                'sex' => $this->host->getSex()->value,
+                'city' => $this->host->getCity(),
+                'pictureUrl' => $this->host->getPictureUrl(),
+            ],
+            'participants' => $this->guests()->map(
+                fn (Guest $guest) => $guest->jsonSerialize()
+            )->toArray(),
         ];
     }
 }

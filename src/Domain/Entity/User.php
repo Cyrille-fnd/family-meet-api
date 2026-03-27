@@ -7,9 +7,17 @@ namespace App\Domain\Entity;
 use App\Domain\ValueObject\DateTimeImmutable;
 use App\Domain\ValueObject\Identity\UserId;
 use App\Domain\ValueObject\Sex;
+use App\Entity\Chat;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 class User implements \JsonSerializable
 {
+    /**
+     * @var Collection<int, Chat>
+     */
+    private Collection $chats;
+
     /**
      * @param string[] $roles
      */
@@ -28,6 +36,7 @@ class User implements \JsonSerializable
         private ?string $pictureUrl,
         private array $roles = ['ROLE_USER'],
     ) {
+        $this->chats = new ArrayCollection();
     }
 
     public static function create(
@@ -256,6 +265,12 @@ class User implements \JsonSerializable
     public function getUpdatedAt(): DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    /** @return Collection<int, Chat> */
+    public function getChats(): Collection
+    {
+        return $this->chats;
     }
 
     /**

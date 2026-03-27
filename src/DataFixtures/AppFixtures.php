@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\DataFixtures;
 
 use App\Domain\Entity\Guest;
-use App\Domain\Entity\Host;
 use App\Domain\Entity\Meet;
 use App\Domain\Entity\User;
 use App\Domain\Service\UserCreatorInterface;
@@ -13,7 +12,6 @@ use App\Domain\ValueObject\Category;
 use App\Domain\ValueObject\DateTimeImmutable;
 use App\Domain\ValueObject\Identity\ChatId;
 use App\Domain\ValueObject\Identity\GuestId;
-use App\Domain\ValueObject\Identity\HostId;
 use App\Domain\ValueObject\Identity\MeetId;
 use App\Domain\ValueObject\Identity\MessageId;
 use App\Domain\ValueObject\Identity\UserId;
@@ -151,12 +149,12 @@ final class AppFixtures extends Fixture
             createdAt: DateTimeImmutable::create(),
             updatedAt: DateTimeImmutable::create(),
             chat: $chatRaclette,
-            host: Host::create(HostId::create(), $userCyrille)
+            host: $userCyrille
         );
 
         $meetRaclette
-            ->addGuest(Guest::create(GuestId::create(), $userMelinda, $meetRaclette))
-            ->addGuest(Guest::create(GuestId::create(), $userGeoffrey, $meetRaclette));
+            ->addGuest(Guest::create(GuestId::create(), $userMelinda))
+            ->addGuest(Guest::create(GuestId::create(), $userGeoffrey));
         $manager->persist($meetRaclette);
 
         $users = [];
@@ -209,12 +207,12 @@ final class AppFixtures extends Fixture
                 createdAt: DateTimeImmutable::create(),
                 updatedAt: DateTimeImmutable::create(),
                 chat: $chat,
-                host: Host::create(HostId::create(), $host)
+                host: $host
             );
             $manager->persist($meet);
 
             foreach ($guests as $guest) {
-                $meet->addGuest(Guest::create(GuestId::create(), $guest, $meet));
+                $meet->addGuest(Guest::create(GuestId::create(), $guest));
                 $chat->addChatter($guest);
             }
 

@@ -12,7 +12,6 @@ doctrine:
             user_id: App\Infrastructure\Bridge\Symfony\Doctrine\types\UserIdType
             meet_id: App\Infrastructure\Bridge\Symfony\Doctrine\types\MeetIdType
             guest_id: App\Infrastructure\Bridge\Symfony\Doctrine\types\GuestIdType
-            host_id: App\Infrastructure\Bridge\Symfony\Doctrine\types\HostIdType
             category: App\Infrastructure\Bridge\Symfony\Doctrine\types\CategoryType
     orm:
         auto_generate_proxy_classes: true
